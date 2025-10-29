@@ -1,23 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Spinner } from '../components/ui/spinner';
 import GameCard from '../components/GameCard';
-import CartIcon from '../components/cart/CartIcon';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Breadcrumbs from '../components/Breadcrumbs';
+import SortOptions, { type SortOption } from '../components/SortOptions';
 import { fetchGames } from '../api/games';
+import { sortGames } from '../utils/sort-games';
 import type { FetchGamesProps } from '../api/games';
 
 const AllGamesPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const type = searchParams.get('type') || 'all';
+  const [sortBy, setSortBy] = useState<SortOption>('default');
+  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
 
   const { data: gamesData, isPending } = useQuery({
     queryFn: () =>
-      fetchGames({} as FetchGamesProps),
-    queryKey: ['all-games', type],
+      fetchGames({ 
+        complete: true,
+        search: searchParams.get('search') || ''
+      } as FetchGamesProps),
+    queryKey: ['all-games', type, searchParams.get('search')],
   });
 
   const getGames = () => {
@@ -49,12 +57,28 @@ const AllGamesPage: React.FC = () => {
   const games = getGames();
   const title = getTitle();
 
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set('search', value);
+    } else {
+      params.delete('search');
+    }
+    setSearchParams(params);
+  };
+
   return (
     <>
-      <CartIcon />
+      <Header 
+        showSearch={true}
+        searchValue={searchValue}
+        onSearchChange={handleSearchChange}
+      />
       <div className="min-h-screen bg-zinc-950 pb-16">
-      <div className="bg-zinc-900 py-8 px-4">
+      <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 py-8 px-4">
         <div className="container mx-auto">
+          <Breadcrumbs items={[{ label: title }]} />
           <button
             onClick={() => navigate('/')}
             className="flex items-center gap-2 text-white hover:text-primary transition-colors mb-4"
@@ -62,12 +86,19 @@ const AllGamesPage: React.FC = () => {
             <ArrowLeft size={20} />
             Voltar
           </button>
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            <span className="text-primary">{title}</span>
-          </h1>
-          <p className="text-gray-400 mt-2">
-            {games.length} {games.length === 1 ? 'jogo disponível' : 'jogos disponíveis'}
-          </p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white">
+                <span className="text-primary">{title}</span>
+              </h1>
+              <p className="text-gray-400 mt-2">
+                {games.length} {games.length === 1 ? 'jogo disponível' : 'jogos disponíveis'}
+              </p>
+            </div>
+            {games.length > 0 && (
+              <SortOptions value={sortBy} onChange={setSortBy} />
+            )}
+          </div>
         </div>
       </div>
 
@@ -78,7 +109,7 @@ const AllGamesPage: React.FC = () => {
           </div>
         ) : games.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {games.map((game) => (
+            {sortGames(games, sortBy).map((game) => (
               <GameCard key={game.id} game={game} />
             ))}
           </div>

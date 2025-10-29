@@ -43,15 +43,46 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
       currency: 'BRL',
     });
   };
+
+  // Determinar badges baseado nos dados do jogo
+  const hasPromo = originalPriceNumber && secondaryValueNumber && originalPriceNumber > secondaryValueNumber;
+  const savingsPercentage = hasPromo ? calculateSavings(originalPriceNumber, secondaryValueNumber) : null;
+  const isHighDiscount = game.unmissable;
   
   return (
-    <div className="flex flex-col h-full bg-zinc-900 rounded-lg overflow-hidden transition-transform duration-200">
-      <img
-        src={game.imageLink}
-        alt={game.game}
-        className="w-full aspect-square object-cover"
-        loading="lazy"
-      />
+    <div className="flex flex-col h-full bg-zinc-900 rounded-lg overflow-hidden transition-transform duration-200 group hover:ring-2 hover:ring-primary">
+      <div className="relative">
+        <img
+          src={game.imageLink}
+          alt={game.game}
+          className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+        />
+        {/* Badges no canto superior */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {hasPromo && (
+            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">
+              {savingsPercentage} OFF
+            </span>
+          )}
+          {isHighDiscount && (
+            <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">
+              🔥 IMPERDÍVEL
+            </span>
+          )}
+          {game.status === 'new' && (
+            <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">
+              NOVO
+            </span>
+          )}
+        </div>
+        {/* Badge do console no canto superior direito */}
+        {game.console && (
+          <span className="absolute top-2 right-2 bg-zinc-800/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md border border-zinc-700">
+            {game.console}
+          </span>
+        )}
+      </div>
       <div className="w-full p-3 flex-grow">
         {game.category !== 'N/A' && !!game.category && (
           <p className="font-bold text-blue-400 text-[10px] whitespace-nowrap overflow-hidden text-ellipsis">
@@ -85,6 +116,12 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
               <p className="text-[9px] text-gray-400 mb-1">Secundária</p>
               <p className="text-white text-xs font-bold">{formatCurrency(secondaryValueNumber)}</p>
             </div>
+          </div>
+          
+          <div className="mt-2">
+            <p className="text-[9px] text-gray-400 text-center italic">
+              Dividimos no cartão em até 12x
+            </p>
           </div>
         </div>
         <AddToCartButton game={game} />

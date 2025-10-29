@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal } from 'lucide-react';
 import { useFormik } from 'formik';
-import { Input } from '../components/ui/input';
-import { Button } from '../components/ui/button';
+
 import { Spinner } from '../components/ui/spinner';
 import { Carousel } from '../components/ui/carousel';
 import GameCard from '../components/GameCard';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ImageBanner from '../components/ImageBanner';
+import QuickFilters from '../components/QuickFilters';
+import SortOptions, { type SortOption } from '../components/SortOptions';
 // import CountdownTimer from '../components/CountdownTimer';
 import FloatingButtons from '../components/FloatingButtons';
 import FilterModal from '../components/FilterModal';
 import { fetchGames } from '../api/games';
 import type { FetchGamesProps } from '../api/games';
 import { useDebounce } from '../hooks/useDebounce';
+import { sortGames } from '../utils/sort-games';
 import type { Game } from '../models/Game';
+import CountdownTimer from '../components/CountdownTimer';
 
 // Games Section with Carousel
 interface GamesSectionProps {
@@ -52,11 +54,23 @@ const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isP
           <Spinner />
         </div>
       ) : (
-        <Carousel classNameItem="max-w-[300px] my-4">
-          {games.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </Carousel>
+        <>
+          {/* Listagem vertical para telas menores que xl */}
+          <div className="block xl:hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {games.map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
+          </div>
+          
+          {/* Carrossel para telas xl e maiores */}
+          <div className="hidden xl:block">
+            <Carousel classNameItem="max-w-[300px] my-4">
+              {games.map((game) => (
+                <GameCard key={game.id} game={game} />
+              ))}
+            </Carousel>
+          </div>
+        </>
       )}
     </div>
   );
@@ -67,6 +81,7 @@ const GamesPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('default');
   
   // Initialize formik with URL params
   const formik = useFormik({
@@ -128,50 +143,34 @@ const GamesPage: React.FC = () => {
 
   return (
     <>
-      <Header />
+      <Header 
+        searchValue={formik.values.search}
+        onSearchChange={(value) => formik.setFieldValue('search', value)}
+        showSearch={true}
+      />
       <ImageBanner />
-      {/* <CountdownTimer /> */}
+      <CountdownTimer />
       <FloatingButtons />
       
-      <section id="games-section" className="pb-16 pt-16 bg-zinc-950 min-h-screen">
-        <header className="px-4 text-center mb-8">
-          <div className="mb-6">
-            <span className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full text-sm font-bold">
+      {/* Quick Filters */}
+      <QuickFilters />
+      
+      <section id="games-section" className="pb-16 bg-zinc-950 min-h-screen">
+        <header className="px-4 text-center py-12 bg-gradient-to-b from-zinc-950 to-zinc-950/50">
+          <div className="mb-4">
+            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-green-500/20 hover:shadow-green-500/30 transition-shadow">
               💎 PREÇOS IMPERDÍVEIS
             </span>
           </div>
-          <h2 className="text-2xl font-medium text-primary mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-green-400 to-primary bg-clip-text text-transparent mb-2">
             CATÁLOGO DE JOGOS
           </h2>
+          <p className="text-gray-400 text-sm max-w-2xl mx-auto">
+            Encontre os melhores jogos com os melhores preços
+          </p>
         </header>
         
         <div className="container mx-auto px-4">
-          {/* Search Bar with Filters */}
-          <div className="mb-12 max-w-3xl mx-auto">
-            <div className="flex items-center gap-2">
-              <div className="relative flex-grow">
-                <Input
-                  placeholder="Buscar jogos..."
-                  className="h-12 w-full bg-zinc-900 border-gray-600 text-gray-100 placeholder:text-gray-300 pl-10 pr-4 text-lg rounded-lg"
-                  value={formik.values.search}
-                  onChange={(e) => formik.setFieldValue('search', e.target.value)}
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              </div>
-
-              {/* Filter Button */}
-              <Button 
-                type="button"
-                variant="outline" 
-                size="icon"
-                onClick={() => setIsFilterModalOpen(true)}
-                className="h-12 w-12 border-gray-600 bg-primary text-white hover:bg-gray-800"
-                title="Filtros avançados"
-              >
-                <SlidersHorizontal className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
 
           {/* Filter Modal */}
           <FilterModal
@@ -185,16 +184,19 @@ const GamesPage: React.FC = () => {
           {/* Games Sections - Show filtered or unfiltered based on filters */}
           {hasFilters ? (
             <div className="mb-12">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <h2 className="text-2xl font-bold text-white">
                   RESULTADOS DA <span className="text-primary">BUSCA</span>
                 </h2>
-                <button 
-                  onClick={handleReset}
-                  className="text-xs text-red-500 hover:text-red-400 border border-red-500 hover:border-red-400 px-3 py-1 rounded-md transition-colors"
-                >
-                  Limpar filtros
-                </button>
+                <div className="flex items-center gap-4">
+                  <SortOptions value={sortBy} onChange={setSortBy} />
+                  <button 
+                    onClick={handleReset}
+                    className="text-xs text-red-500 hover:text-red-400 border border-red-500 hover:border-red-400 px-3 py-1 rounded-md transition-colors"
+                  >
+                    Limpar filtros
+                  </button>
+                </div>
               </div>
               
               {isPending ? (
@@ -213,7 +215,7 @@ const GamesPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {games.map((game) => (
+                  {sortGames(games, sortBy).map((game) => (
                     <GameCard key={game.id} game={game} />
                   ))}
                 </div>

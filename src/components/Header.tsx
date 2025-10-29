@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
-import { Menu, X, ShoppingCart, ChevronDown } from 'lucide-react';
+import { Menu, X, ShoppingCart, ChevronDown, Search } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useCart } from '../contexts/CartContext';
 import CartModal from './cart/CartModal';
 import { fetchCategories } from '../api/games';
+import { Input } from './ui/input';
 import logoImage from '../assets/logo.png';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  showSearch?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ 
+  searchValue = '', 
+  onSearchChange,
+  showSearch = false 
+}) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
@@ -47,6 +58,21 @@ const Header: React.FC = () => {
               className="h-10 md:h-12 w-auto"
             />
           </Link>
+
+          {/* Search Bar - Desktop */}
+          {showSearch && (
+            <div className="hidden md:block flex-1 max-w-md mx-8">
+              <div className="relative">
+                <Input
+                  placeholder="Buscar jogos..."
+                  className="h-10 w-full bg-zinc-800 border-gray-600 text-gray-100 placeholder:text-gray-400 pl-10 pr-4 rounded-lg"
+                  value={searchValue}
+                  onChange={(e) => onSearchChange?.(e.target.value)}
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+          )}
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -120,17 +146,25 @@ const Header: React.FC = () => {
           </div>
         </div>
 
+        {/* Search Bar - Mobile */}
+        {showSearch && (
+          <div className="md:hidden mt-4">
+            <div className="relative">
+              <Input
+                placeholder="Buscar jogos..."
+                className="h-10 w-full bg-zinc-800 border-gray-600 text-gray-100 placeholder:text-gray-400 pl-10 pr-4 rounded-lg"
+                value={searchValue}
+                onChange={(e) => onSearchChange?.(e.target.value)}
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            </div>
+          </div>
+        )}
+
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-zinc-800 pt-4">
             <div className="flex flex-col space-y-4">
-              <Link 
-                to="/" 
-                className="text-gray-300 hover:text-orange-500 transition-colors font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Início
-              </Link>
               <Link 
                 to="/all-games" 
                 className="text-gray-300 hover:text-orange-500 transition-colors font-medium"

@@ -40,7 +40,7 @@ const CountdownTimer: React.FC = () => {
         <div className="flex items-center gap-2">
           <Clock className="h-6 w-6 text-white animate-pulse" />
           <span className="text-white font-bold text-lg md:text-xl uppercase">
-            ⚡ Promoções acabam em:
+            ⚡ Preços mudam em:
           </span>
         </div>
         

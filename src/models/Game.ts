@@ -9,4 +9,5 @@ export interface Game {
   originalPrice?: string;
   console?: string;
   status?: string;
+  unmissable?: boolean
 }
