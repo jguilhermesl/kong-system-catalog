@@ -1,0 +1,15 @@
+# robots.txt for Kong Games Catalog
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin or private areas (if any)
+Disallow: /admin/
+Disallow: /private/
+
+# Sitemap location
+Sitemap: https://konggames.com.br/sitemap.xml
+
+# Crawl-delay to be respectful to search engines
+Crawl-delay: 1
