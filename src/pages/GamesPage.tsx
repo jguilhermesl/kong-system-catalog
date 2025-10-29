@@ -238,14 +238,6 @@ const GamesPage: React.FC = () => {
                 isPending={isPending}
                 onViewAll={() => navigate('/all-games?type=promo')}
               />
-              
-              <GamesSection
-                title="TODOS OS"
-                subtitle="JOGOS"
-                games={games}
-                isPending={isPending}
-                onViewAll={() => navigate('/all-games?type=all')}
-              />
             </>
           )}
         </div>
