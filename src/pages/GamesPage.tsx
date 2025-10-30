@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useFormik } from 'formik';
@@ -82,6 +82,7 @@ const GamesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('default');
+  const gamesSectionRef = useRef<HTMLDivElement>(null);
   
   // Initialize formik with URL params
   const formik = useFormik({
@@ -141,6 +142,19 @@ const GamesPage: React.FC = () => {
   // Check if any filters are applied
   const hasFilters = searchParams.get('search') || searchParams.get('category') || searchParams.get('price') || searchParams.get('console');
 
+  // Scroll to games section when filters are applied
+  useEffect(() => {
+    if (hasFilters && gamesSectionRef.current) {
+      // Small delay to ensure content is rendered
+      setTimeout(() => {
+        gamesSectionRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+    }
+  }, [hasFilters, searchParams]);
+
   return (
     <>
       <Header 
@@ -155,7 +169,7 @@ const GamesPage: React.FC = () => {
       {/* Quick Filters */}
       <QuickFilters />
       
-      <section id="games-section" className="pb-16 bg-zinc-950 min-h-screen">
+      <section id="games-section" ref={gamesSectionRef} className="pb-16 bg-zinc-950 min-h-screen">
         <header className="px-4 text-center py-12 bg-gradient-to-b from-zinc-950 to-zinc-950/50">
           <div className="mb-4">
             <span className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-green-500/20 hover:shadow-green-500/30 transition-shadow">
