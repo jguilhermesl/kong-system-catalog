@@ -9,5 +9,6 @@ export interface Game {
   originalPrice?: string;
   console?: string;
   status?: string;
-  unmissable?: boolean
+  unmissable?: boolean;
+  inPromo?: boolean;
 }

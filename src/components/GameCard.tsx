@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Game } from '../models/Game';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Clock } from 'lucide-react';
 import { calculateSavings } from '../utils/calculate-savings';
 import { convertRealToNumber } from '../utils/convert-real-to-number';
 import AddToCartModal from './cart/AddToCartModal';
@@ -31,6 +31,56 @@ interface GameCardProps {
   game: Game;
 }
 
+const CompactCountdown: React.FC = () => {
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      const difference = tomorrow.getTime() - now.getTime();
+
+      if (difference > 0) {
+        const hours = Math.floor(difference / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+        setTimeLeft({ hours, minutes, seconds });
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (num: number) => String(num).padStart(2, '0');
+
+  return (
+    <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-md py-1.5 px-2 mb-2">
+      <div className="flex items-center justify-center gap-1.5">
+        <Clock size={12} className="text-white" />
+        <span className="text-white text-[9px] font-semibold">
+          Termina em:
+        </span>
+        <div className="flex items-center gap-1">
+          <span className="text-white text-[10px] font-bold">
+            {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const primaryValueNumber = game.primaryValue ? convertRealToNumber(game.primaryValue.toString()) : 0;
   const secondaryValueNumber = game.secondaryValue ? convertRealToNumber(game.secondaryValue.toString()): 0;
@@ -45,7 +95,7 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
   };
 
   // Determinar badges baseado nos dados do jogo
-  const hasPromo = originalPriceNumber && secondaryValueNumber && originalPriceNumber > secondaryValueNumber;
+  const hasPromo = game.inPromo && originalPriceNumber && secondaryValueNumber && originalPriceNumber > secondaryValueNumber;
   const savingsPercentage = hasPromo ? calculateSavings(originalPriceNumber, secondaryValueNumber) : null;
   const isHighDiscount = game.unmissable;
   
@@ -95,33 +145,72 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
         <h3 className="text-xs font-semibold text-white mb-2 line-clamp-2 min-h-[2.5em]">{game.game}</h3>
         
         <div className="mb-3 mt-1">
-          {originalPriceNumber && secondaryValueNumber && (
-            <div className="flex items-center mb-2">
-              <span className="text-[9px] text-gray-300">
-                Você economiza
-              </span>
-              <span className="ml-1 bg-green-500/20 text-green-400 text-[9px] font-bold px-2 py-0.5 rounded-full">
-                -{calculateSavings(originalPriceNumber, secondaryValueNumber)}
-              </span>
+          {/* Countdown para promoções */}
+            <div className="mb-2">
+              <CompactCountdown />
             </div>
-          )}
           
           <div className="grid grid-cols-2 gap-2">
+            {/* Conta Primária */}
             <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-2 border border-primary/30 shadow-sm shadow-primary/10">
-              <p className="text-[9px] text-gray-400 mb-1">Primária</p>
-              <p className="text-white text-xs font-bold">{formatCurrency(primaryValueNumber)}</p>
+              <p className="text-[9px] text-gray-400 mb-1 text-center">Primária</p>
+              <div className="text-center">
+                {/* Informação de promoção */}
+                {originalPriceNumber && (
+                  <div className="mb-1 text-[9px] leading-tight whitespace-nowrap">
+                    <span className="text-gray-400 line-through">
+                      De {formatCurrency(originalPriceNumber * 0.8)}
+                    </span>
+                    <span className="text-green-400 font-semibold"> por</span>
+                  </div>
+                )}
+                {/* Preço à vista em destaque */}
+                <div className="mb-1">
+                  <span className="text-primary text-[10px]">R$</span>
+                  <span className="text-white text-[18px] font-extrabold ml-0.5">
+                    {primaryValueNumber.toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+                {/* Preço parcelado (valor + 10%) */}
+                <div className="text-gray-300 text-[11px]">
+                  ou 4x de <span className="font-semibold">{formatCurrency((primaryValueNumber * 1.1) / 4)}</span>
+                </div>
+              </div>
             </div>
             
+            {/* Conta Secundária */}
             <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-2 border border-primary/20 shadow-sm">
-              <p className="text-[9px] text-gray-400 mb-1">Secundária</p>
-              <p className="text-white text-xs font-bold">{formatCurrency(secondaryValueNumber)}</p>
+              <p className="text-[9px] text-gray-400 mb-1 text-center">Secundária</p>
+              <div className="text-center">
+                {/* Informação de promoção */}
+                {originalPriceNumber && (
+                  <div className="mb-1 text-[9px] leading-tight whitespace-nowrap">
+                    <span className="text-gray-400 line-through">
+                      De {formatCurrency(originalPriceNumber * 0.6)}
+                    </span>
+                    <span className="text-green-400 font-semibold"> por</span>
+                  </div>
+                )}
+                {/* Preço à vista em destaque */}
+                <div className="mb-1">
+                  <span className="text-primary text-[10px]">R$</span>
+                  <span className="text-white text-[18px] font-extrabold ml-0.5">
+                    {secondaryValueNumber.toFixed(2).replace('.', ',')}
+                  </span>
+                </div>
+                {/* Preço parcelado (valor + 10%) */}
+                <div className="text-gray-300 text-[11px]">
+                  ou 4x de <span className="font-semibold">{formatCurrency((secondaryValueNumber * 1.1) / 4)}</span>
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="mt-2">
-            <p className="text-[9px] text-gray-400 text-center italic">
-              Dividimos no cartão em até 12x
-            </p>
+          {/* Badge de economia - mantém altura fixa */}
+          <div className="flex items-center justify-center mt-2">
+              <span className="bg-green-500/20 text-green-400 text-[9px] font-bold px-2 py-1 rounded-full">
+                Economize {originalPriceNumber && secondaryValueNumber ? calculateSavings(originalPriceNumber, secondaryValueNumber) : "20%"}
+              </span>
           </div>
         </div>
         <AddToCartButton game={game} />
