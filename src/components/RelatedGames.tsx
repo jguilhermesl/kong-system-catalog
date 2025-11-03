@@ -40,7 +40,7 @@ const RelatedGames: React.FC<RelatedGamesProps> = ({ category, currentGameId }) 
 
   return (
     <section className="py-12 bg-zinc-950">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-2 md:px-4">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
@@ -68,7 +68,7 @@ const RelatedGames: React.FC<RelatedGamesProps> = ({ category, currentGameId }) 
         </div>
 
         {/* Mobile: Grid */}
-        <div className="md:hidden grid grid-cols-2 gap-4">
+        <div className="md:hidden grid grid-cols-2 gap-1.5">
           {relatedGames.slice(0, 4).map((game: Game) => (
             <GameCard key={game.id} game={game} />
           ))}

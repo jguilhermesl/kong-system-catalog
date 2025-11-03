@@ -133,31 +133,31 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
           </span>
         )}
       </div>
-      <div className="w-full p-3 flex-grow">
+      <div className="w-full p-2 lg:p-3 flex-grow">
         {game.category !== 'N/A' && !!game.category && (
-          <p className="font-bold text-blue-400 text-[10px] whitespace-nowrap overflow-hidden text-ellipsis">
+          <p className="font-bold text-blue-400 text-[10px] whitespace-nowrap overflow-hidden text-ellipsis mb-0.5">
             {game.category}
           </p>
         )}
-        <p className="font-bold text-primary text-[14px]">
+        <p className="font-bold text-primary text-[12px] lg:text-[14px]">
           {game.gameVersion}
         </p>
-        <h3 className="text-xs font-semibold text-white mb-2 line-clamp-2 min-h-[2.5em]">{game.game}</h3>
+        <h3 className="text-[11px] lg:text-xs font-semibold text-white mb-1.5 lg:mb-2 line-clamp-2 min-h-[2.5em]">{game.game}</h3>
         
-        <div className="mb-3 mt-1">
+        <div className="mb-2 lg:mb-3 mt-1">
           {/* Countdown para promoções */}
-            <div className="mb-2">
+            <div className="mb-1.5 lg:mb-2">
               <CompactCountdown />
             </div>
           
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5 lg:gap-2">
             {/* Conta Primária */}
-            <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-2 border border-primary/30 shadow-sm shadow-primary/10">
-              <p className="text-[9px] text-gray-400 mb-1 text-center">Primária</p>
+            <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-1.5 lg:p-2 border border-primary/30 shadow-sm shadow-primary/10">
+              <p className="text-[9px] text-gray-400 mb-0.5 lg:mb-1 text-center">Primária</p>
               <div className="text-center">
                 {/* Informação de promoção */}
                 {originalPriceNumber && (
-                  <div className="mb-1 text-[9px] leading-tight whitespace-nowrap">
+                  <div className="mb-0.5 lg:mb-1 text-[8px] lg:text-[9px] leading-tight whitespace-nowrap">
                     <span className="text-gray-400 line-through">
                       De {formatCurrency(originalPriceNumber * 0.8)}
                     </span>
@@ -165,26 +165,26 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
                   </div>
                 )}
                 {/* Preço à vista em destaque */}
-                <div className="mb-1">
-                  <span className="text-primary text-[10px]">R$</span>
-                  <span className="text-white text-[18px] font-extrabold ml-0.5">
+                <div className="mb-0.5 lg:mb-1">
+                  <span className="text-primary text-[9px] lg:text-[10px]">R$</span>
+                  <span className="text-white text-[16px] lg:text-[18px] font-extrabold ml-0.5">
                     {primaryValueNumber.toFixed(2).replace('.', ',')}
                   </span>
                 </div>
                 {/* Preço parcelado (valor + 10%) */}
-                <div className="text-gray-300 text-[11px]">
+                <div className="text-gray-300 text-[9px] lg:text-[11px]">
                   ou 4x de <span className="font-semibold">{formatCurrency((primaryValueNumber * 1.1) / 4)}</span>
                 </div>
               </div>
             </div>
             
             {/* Conta Secundária */}
-            <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-2 border border-primary/20 shadow-sm">
-              <p className="text-[9px] text-gray-400 mb-1 text-center">Secundária</p>
+            <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-1.5 lg:p-2 border border-primary/20 shadow-sm">
+              <p className="text-[9px] text-gray-400 mb-0.5 lg:mb-1 text-center">Secundária</p>
               <div className="text-center">
                 {/* Informação de promoção */}
                 {originalPriceNumber && (
-                  <div className="mb-1 text-[9px] leading-tight whitespace-nowrap">
+                  <div className="mb-0.5 lg:mb-1 text-[8px] lg:text-[9px] leading-tight whitespace-nowrap">
                     <span className="text-gray-400 line-through">
                       De {formatCurrency(originalPriceNumber * 0.6)}
                     </span>
@@ -192,14 +192,14 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
                   </div>
                 )}
                 {/* Preço à vista em destaque */}
-                <div className="mb-1">
-                  <span className="text-primary text-[10px]">R$</span>
-                  <span className="text-white text-[18px] font-extrabold ml-0.5">
+                <div className="mb-0.5 lg:mb-1">
+                  <span className="text-primary text-[9px] lg:text-[10px]">R$</span>
+                  <span className="text-white text-[16px] lg:text-[18px] font-extrabold ml-0.5">
                     {secondaryValueNumber.toFixed(2).replace('.', ',')}
                   </span>
                 </div>
                 {/* Preço parcelado (valor + 10%) */}
-                <div className="text-gray-300 text-[11px]">
+                <div className="text-gray-300 text-[9px] lg:text-[11px]">
                   ou 4x de <span className="font-semibold">{formatCurrency((secondaryValueNumber * 1.1) / 4)}</span>
                 </div>
               </div>
@@ -207,13 +207,15 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
           </div>
           
           {/* Badge de economia - mantém altura fixa */}
-          <div className="flex items-center justify-center mt-2">
-              <span className="bg-green-500/20 text-green-400 text-[9px] font-bold px-2 py-1 rounded-full">
+          <div className="flex items-center justify-center mt-1.5 lg:mt-2">
+              <span className="bg-green-500/20 text-green-400 text-[8px] lg:text-[9px] font-bold px-2 py-0.5 lg:py-1 rounded-full">
                 Economize {originalPriceNumber && secondaryValueNumber ? calculateSavings(originalPriceNumber, secondaryValueNumber) : "20%"}
               </span>
           </div>
         </div>
-        <AddToCartButton game={game} />
+        <div className="mt-1.5 lg:mt-2">
+          <AddToCartButton game={game} />
+        </div>
       </div>
     </div>
   );

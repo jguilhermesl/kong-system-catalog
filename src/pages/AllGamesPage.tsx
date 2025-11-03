@@ -102,13 +102,13 @@ const AllGamesPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 mt-8">
+      <div className="container mx-auto px-2 md:px-4 mt-4 md:mt-8">
         {isPending ? (
           <div className="flex items-center justify-center w-full mt-8">
             <Spinner />
           </div>
         ) : games.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-6">
             {sortGames(games, sortBy).map((game) => (
               <GameCard key={game.id} game={game} />
             ))}

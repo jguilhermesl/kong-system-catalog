@@ -56,7 +56,7 @@ const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isP
       ) : (
         <>
           {/* Listagem vertical para telas menores que xl */}
-          <div className="block xl:hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="block xl:hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 md:gap-4">
             {games.map((game) => (
               <GameCard key={game.id} game={game} />
             ))}
@@ -184,7 +184,7 @@ const GamesPage: React.FC = () => {
           </p>
         </header>
         
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-2 md:px-4">
 
           {/* Filter Modal */}
           <FilterModal
@@ -228,7 +228,7 @@ const GamesPage: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-4">
                   {sortGames(games, sortBy).map((game) => (
                     <GameCard key={game.id} game={game} />
                   ))}
