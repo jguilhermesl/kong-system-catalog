@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { Menu, X, ShoppingCart, ChevronDown, Search } from 'lucide-react';
+import {
+  Menu,
+  X,
+  ShoppingCart,
+  ChevronDown,
+  Search,
+  ExternalLink,
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useCart } from '../contexts/CartContext';
@@ -14,10 +21,10 @@ interface HeaderProps {
   showSearch?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  searchValue = '', 
+const Header: React.FC<HeaderProps> = ({
+  searchValue = '',
   onSearchChange,
-  showSearch = false 
+  showSearch = false,
 }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,16 +59,16 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img 
-              src={logoImage} 
-              alt="Kong Games" 
+            <img
+              src={logoImage}
+              alt="Kong Games"
               className="h-10 md:h-12 w-auto"
             />
           </Link>
 
           {/* Search Bar - Desktop */}
           {showSearch && (
-            <div className="hidden md:block flex-1 max-w-md mx-8">
+            <div className="hidden xl:block flex-1 max-w-md mx-8">
               <div className="relative">
                 <Input
                   placeholder="Buscar jogos..."
@@ -75,20 +82,20 @@ const Header: React.FC<HeaderProps> = ({
           )}
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link 
-              to="/all-games" 
+          <nav className="hidden xl:flex items-center space-x-8">
+            <Link
+              to="/all-games"
               className="text-gray-300 hover:text-orange-500 transition-colors font-medium"
             >
               Todos os Jogos
             </Link>
-            <Link 
-              to="/all-games?type=promo" 
+            <Link
+              to="/all-games?type=promo"
               className="text-gray-300 hover:text-orange-500 transition-colors font-medium"
             >
               Ofertas
             </Link>
-            
+
             {/* Categories Dropdown */}
             <div className="relative">
               <button
@@ -96,13 +103,17 @@ const Header: React.FC<HeaderProps> = ({
                 className="text-gray-300 hover:text-orange-500 transition-colors font-medium flex items-center gap-1"
               >
                 Categorias
-                <ChevronDown className={`w-4 h-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${
+                    isCategoriesOpen ? 'rotate-180' : ''
+                  }`}
+                />
               </button>
-              
+
               {isCategoriesOpen && (
                 <>
-                  <div 
-                    className="fixed inset-0 z-10" 
+                  <div
+                    className="fixed inset-0 z-10"
                     onClick={() => setIsCategoriesOpen(false)}
                   />
                   <div className="absolute top-full right-0 mt-2 w-56 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl z-20 py-2">
@@ -119,11 +130,25 @@ const Header: React.FC<HeaderProps> = ({
                 </>
               )}
             </div>
+
+            {/* Client Portal Button */}
+            <a
+              href={
+                import.meta.env.VITE_CLIENT_PORTAL_URL ||
+                'https://app.konggames.com.br'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium"
+            >
+              Portal do Cliente
+              <ExternalLink className="w-4 h-4" />
+            </a>
           </nav>
 
           {/* Cart Icon */}
           <div className="flex items-center space-x-4">
-            <button 
+            <button
               onClick={toggleCartModal}
               className="relative p-2 text-gray-300 hover:text-orange-500 transition-colors"
               aria-label="Abrir carrinho"
@@ -139,16 +164,20 @@ const Header: React.FC<HeaderProps> = ({
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMenu}
-              className="md:hidden text-gray-300 hover:text-orange-500 transition-colors"
+              className="xl:hidden text-gray-300 hover:text-orange-500 transition-colors"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Search Bar - Mobile */}
         {showSearch && (
-          <div className="md:hidden mt-4">
+          <div className="xl:hidden mt-4">
             <div className="relative">
               <Input
                 placeholder="Buscar jogos..."
@@ -163,23 +192,23 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="md:hidden mt-4 pb-4 border-t border-zinc-800 pt-4">
+          <nav className="xl:hidden mt-4 pb-4 border-t border-zinc-800 pt-4">
             <div className="flex flex-col space-y-4">
-              <Link 
-                to="/all-games" 
+              <Link
+                to="/all-games"
                 className="text-gray-300 hover:text-orange-500 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Todos os Jogos
               </Link>
-              <Link 
-                to="/all-games?type=promo" 
+              <Link
+                to="/all-games?type=promo"
                 className="text-gray-300 hover:text-orange-500 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Ofertas
               </Link>
-              
+
               {/* Mobile Categories */}
               <div>
                 <button
@@ -187,9 +216,13 @@ const Header: React.FC<HeaderProps> = ({
                   className="w-full text-left text-gray-300 hover:text-orange-500 transition-colors font-medium flex items-center justify-between"
                 >
                   Categorias
-                  <ChevronDown className={`w-4 h-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform ${
+                      isCategoriesOpen ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
-                
+
                 {isCategoriesOpen && (
                   <div className="mt-2 ml-4 space-y-2">
                     {categories.map((category) => (
@@ -204,6 +237,21 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Client Portal Button - Mobile */}
+              <a
+                href={
+                  import.meta.env.VITE_CLIENT_PORTAL_URL ||
+                  'https://app.konggames.com.br'
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Portal do Cliente
+                <ExternalLink className="w-4 h-4" />
+              </a>
             </div>
           </nav>
         )}
