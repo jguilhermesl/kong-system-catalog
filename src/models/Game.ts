@@ -11,4 +11,5 @@ export interface Game {
   status?: string;
   unmissable?: boolean;
   inPromo?: boolean;
+  description?: string;
 }

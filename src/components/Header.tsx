@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Search,
   ExternalLink,
+  Users,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -80,6 +81,14 @@ const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
           )}
+
+          {/* Trust Badge - Desktop */}
+          <div className="hidden xl:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-full">
+            <Users className="w-4 h-4 text-green-400" />
+            <span className="text-xs font-semibold text-green-400">
+              +2000 Clientes Satisfeitos
+            </span>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden xl:flex items-center space-x-8">
@@ -189,6 +198,14 @@ const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
         )}
+
+        {/* Trust Badge - Mobile */}
+        <div className="xl:hidden mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/20 to-green-600/20 border border-green-500/30 rounded-full">
+          <Users className="w-4 h-4 text-green-400" />
+          <span className="text-xs font-semibold text-green-400">
+            +2000 Clientes Satisfeitos
+          </span>
+        </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Game } from '../models/Game';
-import { ShoppingCart, Clock } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { calculateSavings } from '../utils/calculate-savings';
 import { convertRealToNumber } from '../utils/convert-real-to-number';
 import AddToCartModal from './cart/AddToCartModal';
+import { CompactCountdown } from './CompactCountdown';
 
 interface AddToCartButtonProps {
   game: Game;
@@ -31,57 +33,10 @@ interface GameCardProps {
   game: Game;
 }
 
-const CompactCountdown: React.FC = () => {
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
 
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-
-      const difference = tomorrow.getTime() - now.getTime();
-
-      if (difference > 0) {
-        const hours = Math.floor(difference / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        setTimeLeft({ hours, minutes, seconds });
-      }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (num: number) => String(num).padStart(2, '0');
-
-  return (
-    <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-md py-1.5 px-2 mb-2">
-      <div className="flex items-center justify-center gap-1.5">
-        <Clock size={12} className="text-white" />
-        <span className="text-white text-[9px] font-semibold">
-          Termina em:
-        </span>
-        <div className="flex items-center gap-1">
-          <span className="text-white text-[10px] font-bold">
-            {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const GameCard: React.FC<GameCardProps> = ({ game }) => {
+  const navigate = useNavigate();
   const primaryValueNumber = game.primaryValue ? convertRealToNumber(game.primaryValue.toString()) : 0;
   const secondaryValueNumber = game.secondaryValue ? convertRealToNumber(game.secondaryValue.toString()): 0;
   const originalPriceNumber = game.originalPrice ? convertRealToNumber(game.originalPrice.toString()) : null;
@@ -94,14 +49,18 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
     });
   };
 
+  const handleCardClick = () => {
+    navigate(`/game?id=${game.id}`);
+  };
+
   // Determinar badges baseado nos dados do jogo
   const hasPromo = game.inPromo && originalPriceNumber && secondaryValueNumber && originalPriceNumber > secondaryValueNumber;
   const savingsPercentage = hasPromo ? calculateSavings(originalPriceNumber, secondaryValueNumber) : null;
   const isHighDiscount = game.unmissable;
   
   return (
-    <div className="flex flex-col h-full bg-zinc-900 rounded-lg overflow-hidden transition-transform duration-200 group hover:ring-2 hover:ring-primary">
-      <div className="relative">
+    <div className="flex flex-col h-full bg-zinc-900 rounded-lg overflow-hidden transition-transform duration-200 group hover:ring-2 hover:ring-primary cursor-pointer">
+      <div className="relative" onClick={handleCardClick}>
         <img
           src={game.imageLink}
           alt={game.game}
@@ -133,7 +92,7 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
           </span>
         )}
       </div>
-      <div className="w-full p-2 lg:p-3 flex-grow">
+      <div className="w-full p-2 lg:p-3 flex-grow" onClick={handleCardClick}>
         {game.category !== 'N/A' && !!game.category && (
           <p className="font-bold text-blue-400 text-[10px] whitespace-nowrap overflow-hidden text-ellipsis mb-0.5">
             {game.category}
@@ -213,7 +172,7 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
               </span>
           </div>
         </div>
-        <div className="mt-1.5 lg:mt-2">
+        <div className="mt-1.5 lg:mt-2" onClick={(e) => e.stopPropagation()}>
           <AddToCartButton game={game} />
         </div>
       </div>
