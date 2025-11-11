@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, ShoppingCart, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, ShoppingCart, Trash2, Tag } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { formatPrice } from '../../utils/format-price';
 
@@ -9,9 +9,38 @@ interface CartModalProps {
 }
 
 const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
-  const { items, removeFromCart, clearCart, totalPrice } = useCart();
+  const { items, removeFromCart, clearCart, totalPrice, appliedCoupon, discount, finalPrice, applyCoupon, removeCoupon } = useCart();
+  const [couponCode, setCouponCode] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('Digite um código de cupom');
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    setCouponError('');
+
+    const result = await applyCoupon(couponCode.trim().toUpperCase());
+    
+    if (result.success) {
+      setCouponCode('');
+    } else {
+      setCouponError(result.message);
+    }
+
+    setIsApplyingCoupon(false);
+  };
+
+  const handleRemoveCoupon = () => {
+    removeCoupon();
+    setCouponCode('');
+    setCouponError('');
+  };
 
   const handleCheckout = () => {
     // Format the message for WhatsApp
@@ -23,7 +52,14 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
       )
       .join('\n');
     
-    const totalMessage = `\n\nTotal: ${formatPrice(totalPrice)}`;
+    let totalMessage = `\n\nSubtotal: ${formatPrice(totalPrice)}`;
+    
+    if (appliedCoupon) {
+      totalMessage += `\nCupom (${appliedCoupon.code}): -${formatPrice(discount)}`;
+      totalMessage += `\n\nTotal: ${formatPrice(finalPrice)}`;
+    } else {
+      totalMessage += `\n\nTotal: ${formatPrice(totalPrice)}`;
+    }
     
     const encodedMessage = encodeURIComponent(`Olá, gostaria de comprar os seguintes jogos:\n${message}${totalMessage}`);
     
@@ -88,13 +124,84 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {items.length > 0 && (
-          <div className="p-4 border-t">
-            <div className="flex justify-between items-center mb-4">
-              <span className="font-bold text-gray-900">Total:</span>
-              <span className="font-bold text-lg text-primary">
-                {formatPrice(totalPrice)}
-              </span>
+          <div className="p-4 border-t space-y-4">
+            {/* Coupon Section */}
+            <div className="space-y-2">
+              {!appliedCoupon ? (
+                <>
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Tag size={16} />
+                    Cupom de Desconto
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      placeholder="Digite o código"
+                      className="flex-1 px-3 py-2 border border-gray-300 text-black rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      disabled={isApplyingCoupon}
+                    />
+                    <button
+                      onClick={handleApplyCoupon}
+                      disabled={isApplyingCoupon}
+                      className="px-4 py-2 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    >
+                      {isApplyingCoupon ? 'Aplicando...' : 'Aplicar'}
+                    </button>
+                  </div>
+                  {couponError && (
+                    <p className="text-xs text-red-500">{couponError}</p>
+                  )}
+                </>
+              ) : (
+                <div className="flex items-center justify-between bg-green-50 p-3 rounded-md border border-green-200">
+                  <div className="flex items-center gap-2">
+                    <Tag size={16} className="text-green-600" />
+                    <div>
+                      <p className="text-sm font-medium text-green-800">
+                        Cupom {appliedCoupon.code} aplicado
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {appliedCoupon.type === 'PERCENTAGE' 
+                          ? `${appliedCoupon.value}% de desconto` 
+                          : `${formatPrice(appliedCoupon.value)} de desconto`}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleRemoveCoupon}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              )}
             </div>
+
+            {/* Total Section */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-600">Subtotal:</span>
+                <span className="text-gray-900">{formatPrice(totalPrice)}</span>
+              </div>
+              
+              {appliedCoupon && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-green-600">Desconto:</span>
+                  <span className="text-green-600">-{formatPrice(discount)}</span>
+                </div>
+              )}
+              
+              <div className="flex justify-between items-center pt-2 border-t">
+                <span className="font-bold text-gray-900">Total:</span>
+                <span className="font-bold text-lg text-primary">
+                  {formatPrice(finalPrice)}
+                </span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
             <div className="flex gap-2">
               <button
                 onClick={clearCart}

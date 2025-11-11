@@ -1,5 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { validateCoupon } from '../api/coupons';
 
 export interface CartItem {
   id: string;
@@ -9,6 +12,13 @@ export interface CartItem {
   type: 'primary' | 'secondary';
 }
 
+export interface AppliedCoupon {
+  code: string;
+  discount: number;
+  type: 'PERCENTAGE' | 'FIXED';
+  value: number;
+}
+
 interface CartContextType {
   items: CartItem[];
   addToCart: (item: CartItem) => void;
@@ -16,6 +26,11 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  appliedCoupon: AppliedCoupon | null;
+  discount: number;
+  finalPrice: number;
+  applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
+  removeCoupon: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -24,6 +39,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [items, setItems] = useState<CartItem[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [discount, setDiscount] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(0);
 
   // Load cart from localStorage on initial render
   useEffect(() => {
@@ -31,9 +49,14 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (savedCart) {
       setItems(JSON.parse(savedCart));
     }
+    
+    const savedCoupon = localStorage.getItem('appliedCoupon');
+    if (savedCoupon) {
+      setAppliedCoupon(JSON.parse(savedCoupon));
+    }
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Save cart to localStorage and calculate totals whenever items change
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(items));
     
@@ -47,6 +70,26 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     setTotalPrice(total);
   }, [items]);
+
+  // Save coupon to localStorage whenever it changes
+  useEffect(() => {
+    if (appliedCoupon) {
+      localStorage.setItem('appliedCoupon', JSON.stringify(appliedCoupon));
+    } else {
+      localStorage.removeItem('appliedCoupon');
+    }
+  }, [appliedCoupon]);
+
+  // Recalculate discount and final price when cart or coupon changes
+  useEffect(() => {
+    if (appliedCoupon && totalPrice > 0) {
+      setDiscount(appliedCoupon.discount);
+      setFinalPrice(totalPrice - appliedCoupon.discount);
+    } else {
+      setDiscount(0);
+      setFinalPrice(totalPrice);
+    }
+  }, [totalPrice, appliedCoupon]);
 
   const addToCart = (item: CartItem) => {
     // Check if the same game with the same type is already in the cart
@@ -69,6 +112,50 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const clearCart = () => {
     setItems([]);
+    setAppliedCoupon(null);
+  };
+
+  const applyCoupon = async (code: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      if (totalPrice === 0) {
+        return {
+          success: false,
+          message: 'Adicione itens ao carrinho antes de aplicar um cupom'
+        };
+      }
+
+      const result = await validateCoupon(code, totalPrice);
+      
+      if (result.valid && result.coupon && result.discount !== undefined) {
+        setAppliedCoupon({
+          code: result.coupon.code,
+          discount: result.discount,
+          type: result.coupon.type,
+          value: result.coupon.value
+        });
+        
+        return {
+          success: true,
+          message: result.message
+        };
+      } else {
+        return {
+          success: false,
+          message: result.message
+        };
+      }
+    } catch (error: any) {
+      console.log(error)
+      const errorMessage =  error.response?.data.message || 'Erro ao validar cupom';
+      return {
+        success: false,
+        message: errorMessage
+      };
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
   };
 
   return (
@@ -79,7 +166,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         removeFromCart,
         clearCart,
         totalItems,
-        totalPrice
+        totalPrice,
+        appliedCoupon,
+        discount,
+        finalPrice,
+        applyCoupon,
+        removeCoupon
       }}
     >
       {children}
