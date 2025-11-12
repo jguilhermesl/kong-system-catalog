@@ -32,3 +32,8 @@ export const fetchCategories = async (): Promise<{ data: GameCategory[] }> => {
   const response = await axios.get(`${API_URL}/games/categories`);
   return response.data;
 };
+
+export const fetchGameById = async (gameId: string): Promise<{ data: Game }> => {
+  const response = await axios.get(`${API_URL}/games/${gameId}`);
+  return response.data;
+};

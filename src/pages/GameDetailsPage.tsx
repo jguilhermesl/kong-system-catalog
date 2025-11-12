@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, ShoppingCart, Clock, Star, Shield, Gamepad2, Package } from 'lucide-react';
-import { fetchGames } from '../api/games';
+import { fetchGameById } from '../api/games';
 import { Spinner } from '../components/ui/spinner';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -80,12 +80,13 @@ const GameDetailsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'description' | 'howItWorks'>('description');
 
-  const { data: gamesData, isPending } = useQuery({
-    queryFn: () => fetchGames({}),
-    queryKey: ['games'],
+  const { data: gameData, isPending } = useQuery({
+    queryFn: () => fetchGameById(gameId!),
+    queryKey: ['game', gameId],
+    enabled: !!gameId,
   });
 
-  const game = gamesData?.data.find((g) => g.id === gameId);
+  const game = gameData?.data;
 
   // Scroll to top when accessing the page
   useEffect(() => {
