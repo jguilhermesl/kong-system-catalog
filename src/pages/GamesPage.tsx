@@ -9,6 +9,7 @@ import GameCard from '../components/GameCard';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ImageBanner from '../components/ImageBanner';
+import BlackFridayBanner from '../components/BlackFridayBanner';
 import QuickFilters from '../components/QuickFilters';
 import SortOptions, { type SortOption } from '../components/SortOptions';
 // import CountdownTimer from '../components/CountdownTimer';
@@ -162,6 +163,7 @@ const GamesPage: React.FC = () => {
         onSearchChange={(value) => formik.setFieldValue('search', value)}
         showSearch={true}
       />
+      <BlackFridayBanner />
       <ImageBanner />
       <CountdownTimer />
       <FloatingButtons />
