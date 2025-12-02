@@ -11,9 +11,11 @@ import Footer from '../components/Footer';
 import ImageBanner from '../components/ImageBanner';
 import QuickFilters from '../components/QuickFilters';
 import SortOptions, { type SortOption } from '../components/SortOptions';
-// import CountdownTimer from '../components/CountdownTimer';
 import FloatingButtons from '../components/FloatingButtons';
 import FilterModal from '../components/FilterModal';
+import AuthModal from '../components/AuthModal';
+import SignUpModal from '../components/SignUpModal';
+import ForgotPasswordModal from '../components/ForgotPasswordModal';
 import { fetchGames } from '../api/games';
 import type { FetchGamesProps } from '../api/games';
 import { useDebounce } from '../hooks/useDebounce';
@@ -28,9 +30,10 @@ interface GamesSectionProps {
   games: Game[];
   isPending: boolean;
   onViewAll?: () => void;
+  onAuthRequired?: () => void;
 }
 
-const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isPending, onViewAll }) => {
+const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isPending, onViewAll, onAuthRequired }) => {
   if (games.length === 0 && !isPending) return null;
 
   return (
@@ -58,7 +61,7 @@ const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isP
           {/* Listagem vertical para telas menores que xl */}
           <div className="block xl:hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 md:gap-4">
             {games.map((game) => (
-              <GameCard key={game.id} game={game} />
+              <GameCard key={game.id} game={game} onAuthRequired={onAuthRequired} />
             ))}
           </div>
           
@@ -66,7 +69,7 @@ const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isP
           <div className="hidden xl:block">
             <Carousel classNameItem="max-w-[300px] my-4">
               {games.map((game) => (
-                <GameCard key={game.id} game={game} />
+                <GameCard key={game.id} game={game} onAuthRequired={onAuthRequired} />
               ))}
             </Carousel>
           </div>
@@ -81,6 +84,9 @@ const GamesPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const gamesSectionRef = useRef<HTMLDivElement>(null);
   
@@ -231,7 +237,7 @@ const GamesPage: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-4">
                   {sortGames(games, sortBy).map((game) => (
-                    <GameCard key={game.id} game={game} />
+                    <GameCard key={game.id} game={game} onAuthRequired={() => setIsAuthModalOpen(true)} />
                   ))}
                 </div>
               )}
@@ -244,6 +250,7 @@ const GamesPage: React.FC = () => {
                 games={unmissableGames}
                 isPending={isPending}
                 onViewAll={() => navigate('/all-games?type=unmissable')}
+                onAuthRequired={() => setIsAuthModalOpen(true)}
               />
               
               <GamesSection
@@ -252,12 +259,45 @@ const GamesPage: React.FC = () => {
                 games={promoGames}
                 isPending={isPending}
                 onViewAll={() => navigate('/all-games?type=promo')}
+                onAuthRequired={() => setIsAuthModalOpen(true)}
               />
             </>
           )}
         </div>
       </section>
       <Footer />
+      
+      {/* Auth Modals */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onSwitchToSignUp={() => {
+          setIsAuthModalOpen(false);
+          setIsSignUpModalOpen(true);
+        }}
+        onSwitchToForgotPassword={() => {
+          setIsAuthModalOpen(false);
+          setIsForgotPasswordModalOpen(true);
+        }}
+      />
+      
+      <SignUpModal
+        isOpen={isSignUpModalOpen}
+        onClose={() => setIsSignUpModalOpen(false)}
+        onSwitchToLogin={() => {
+          setIsSignUpModalOpen(false);
+          setIsAuthModalOpen(true);
+        }}
+      />
+      
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordModalOpen}
+        onClose={() => setIsForgotPasswordModalOpen(false)}
+        onSwitchToLogin={() => {
+          setIsForgotPasswordModalOpen(false);
+          setIsAuthModalOpen(true);
+        }}
+      />
     </>
   );
 };

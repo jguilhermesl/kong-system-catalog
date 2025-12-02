@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Game } from '../models/Game';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Heart } from 'lucide-react';
 import { calculateSavings } from '../utils/calculate-savings';
 import { convertRealToNumber } from '../utils/convert-real-to-number';
 import AddToCartModal from './cart/AddToCartModal';
 import { CompactCountdown } from './CompactCountdown';
+import { useFavorites } from '../contexts/FavoritesContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AddToCartButtonProps {
   game: Game;
@@ -31,12 +33,14 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ game }) => {
 
 interface GameCardProps {
   game: Game;
+  onAuthRequired?: () => void;
 }
 
-
-
-const GameCard: React.FC<GameCardProps> = ({ game }) => {
+const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
   const navigate = useNavigate();
+  const { toggleFavorite, isFavorited } = useFavorites();
+  const { isAuthenticated } = useAuth();
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
   const primaryValueNumber = game.primaryValue ? convertRealToNumber(game.primaryValue.toString()) : 0;
   const secondaryValueNumber = game.secondaryValue ? convertRealToNumber(game.secondaryValue.toString()): 0;
   const originalPriceNumber = game.originalPrice ? convertRealToNumber(game.originalPrice.toString()) : null;
@@ -53,6 +57,24 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
     navigate(`/game?id=${game.id}`);
   };
 
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      onAuthRequired?.();
+      return;
+    }
+
+    setIsFavoriteLoading(true);
+    try {
+      await toggleFavorite(game.id);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    } finally {
+      setIsFavoriteLoading(false);
+    }
+  };
+
   // Determinar badges baseado nos dados do jogo
   const hasPromo = game.inPromo && originalPriceNumber && secondaryValueNumber && originalPriceNumber > secondaryValueNumber;
   const savingsPercentage = hasPromo ? calculateSavings(originalPriceNumber, secondaryValueNumber) : null;
@@ -67,6 +89,20 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
           className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
+        {/* Favorite button */}
+        <button
+          onClick={handleFavoriteClick}
+          disabled={isFavoriteLoading}
+          className="absolute top-2 right-2 z-10 bg-zinc-900/80 backdrop-blur-sm p-2 rounded-full hover:bg-zinc-800 transition-colors disabled:opacity-50"
+          aria-label={isFavorited(game.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+        >
+          <Heart
+            size={16}
+            className={`transition-colors ${
+              isFavorited(game.id) ? 'fill-red-500 text-red-500' : 'text-white'
+            }`}
+          />
+        </button>
         {/* Badges no canto superior */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {hasPromo && (
@@ -85,12 +121,6 @@ const GameCard: React.FC<GameCardProps> = ({ game }) => {
             </span>
           )}
         </div>
-        {/* Badge do console no canto superior direito */}
-        {game.console && (
-          <span className="absolute top-2 right-2 bg-zinc-800/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md border border-zinc-700">
-            {game.console}
-          </span>
-        )}
       </div>
       <div className="w-full p-2 lg:p-3 flex-grow" onClick={handleCardClick}>
         {game.category !== 'N/A' && !!game.category && (

@@ -7,11 +7,18 @@ import {
   Search,
   ExternalLink,
   Users,
+  LogOut,
+  CircleUserRound,
+  Heart,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 import CartModal from './cart/CartModal';
+import AuthModal from './AuthModal';
+import SignUpModal from './SignUpModal';
+import ForgotPasswordModal from './ForgotPasswordModal';
 import { fetchCategories } from '../api/games';
 import { Input } from './ui/input';
 import logoImage from '../assets/logo.png';
@@ -30,8 +37,13 @@ const Header: React.FC<HeaderProps> = ({
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { totalItems } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const { data: categoriesData } = useQuery({
     queryFn: fetchCategories,
@@ -96,6 +108,13 @@ const Header: React.FC<HeaderProps> = ({
             >
               Ofertas
             </Link>
+            <Link
+              to="/favorites"
+              className="text-gray-300 hover:text-orange-500 transition-colors font-medium flex items-center gap-1"
+            >
+              <Heart className="w-4 h-4" />
+              Favoritos
+            </Link>
 
             {/* Categories Dropdown */}
             <div className="relative">
@@ -147,8 +166,53 @@ const Header: React.FC<HeaderProps> = ({
             </a>
           </nav>
 
-          {/* Cart Icon */}
+          {/* Cart Icon & User Menu */}
           <div className="flex items-center space-x-4">
+            {/* User Menu - Desktop */}
+            <div className="hidden xl:block relative">
+              <button
+                onClick={() => {
+                  if (isAuthenticated) {
+                    setIsUserMenuOpen(!isUserMenuOpen);
+                  } else {
+                    setIsAuthModalOpen(true);
+                  }
+                }}
+                className="flex items-center gap-2 p-2 text-gray-300 hover:text-orange-500 transition-colors rounded-lg hover:bg-zinc-800"
+                aria-label={isAuthenticated ? 'Menu do usuário' : 'Fazer login'}
+              >
+                <CircleUserRound className="w-6 h-6" />
+                {isAuthenticated && user?.name && (
+                  <span className="text-sm font-medium">{user.name}</span>
+                )}
+              </button>
+              
+              {isAuthenticated && isUserMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  />
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl z-20 py-2">
+                    <div className="px-4 py-2 border-b border-zinc-700">
+                      <p className="text-sm font-medium text-gray-300">{user?.name}</p>
+                      <p className="text-xs text-gray-400">{user?.email}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-gray-300 hover:bg-zinc-700 hover:text-orange-500 transition-colors flex items-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sair
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
             <button
               onClick={toggleCartModal}
               className="relative p-2 text-gray-300 hover:text-orange-500 transition-colors"
@@ -217,6 +281,14 @@ const Header: React.FC<HeaderProps> = ({
               >
                 Ofertas
               </Link>
+              <Link
+                to="/favorites"
+                className="text-gray-300 hover:text-orange-500 transition-colors font-medium flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Heart className="w-4 h-4" />
+                Favoritos
+              </Link>
 
               {/* Mobile Categories */}
               <div>
@@ -247,6 +319,39 @@ const Header: React.FC<HeaderProps> = ({
                 )}
               </div>
 
+              {/* User Menu - Mobile */}
+              <div className="border-t border-zinc-800 pt-4 mt-4">
+                {isAuthenticated ? (
+                  <>
+                    <div className="px-2 py-2 mb-2">
+                      <p className="text-sm font-medium text-gray-300">{user?.name}</p>
+                      <p className="text-xs text-gray-400">{user?.email}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center gap-2 text-gray-300 hover:text-orange-500 transition-colors font-medium w-full"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      Sair
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsAuthModalOpen(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 text-gray-300 hover:text-orange-500 transition-colors font-medium w-full"
+                  >
+                    <CircleUserRound className="w-5 h-5" />
+                    Entrar
+                  </button>
+                )}
+              </div>
+
               {/* Client Portal Button - Mobile */}
               <a
                 href={
@@ -268,6 +373,40 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Cart Modal */}
       <CartModal isOpen={isCartModalOpen} onClose={toggleCartModal} />
+      
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onSwitchToSignUp={() => {
+          setIsAuthModalOpen(false);
+          setIsSignUpModalOpen(true);
+        }}
+        onSwitchToForgotPassword={() => {
+          setIsAuthModalOpen(false);
+          setIsForgotPasswordModalOpen(true);
+        }}
+      />
+      
+      {/* Sign Up Modal */}
+      <SignUpModal
+        isOpen={isSignUpModalOpen}
+        onClose={() => setIsSignUpModalOpen(false)}
+        onSwitchToLogin={() => {
+          setIsSignUpModalOpen(false);
+          setIsAuthModalOpen(true);
+        }}
+      />
+      
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordModalOpen}
+        onClose={() => setIsForgotPasswordModalOpen(false)}
+        onSwitchToLogin={() => {
+          setIsForgotPasswordModalOpen(false);
+          setIsAuthModalOpen(true);
+        }}
+      />
     </header>
   );
 };
