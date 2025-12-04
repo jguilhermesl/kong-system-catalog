@@ -9,6 +9,7 @@ import GameCard from '../components/GameCard';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ImageBanner from '../components/ImageBanner';
+import SaldaoBanner from '../components/SaldaoBanner';
 import QuickFilters from '../components/QuickFilters';
 import SortOptions, { type SortOption } from '../components/SortOptions';
 import FloatingButtons from '../components/FloatingButtons';
@@ -169,6 +170,7 @@ const GamesPage: React.FC = () => {
         showSearch={true}
       />
       {/* <BlackFridayBanner /> */}
+      <SaldaoBanner />
       <ImageBanner />
       <CountdownTimer />
       <FloatingButtons />
