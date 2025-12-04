@@ -146,7 +146,7 @@ const SaldaoCard: React.FC<SaldaoCardProps> = ({ game }) => {
                   game: game.jogo,
                   imageLink: game.imagemDoJogo || '',
                   price: price,
-                  type: 'primary' // Use primary type for saldao items
+                  type: game.tipo === "Primária" ? 'primary' : 'secondary' // Use primary type for saldao items
                 });
                 
                 // Show success feedback
