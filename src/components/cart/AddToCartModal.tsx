@@ -5,6 +5,7 @@ import { useCart } from '../../contexts/CartContext';
 import type { Game } from '../../models/Game';
 import { formatPrice } from '../../utils/format-price';
 import { convertRealToNumber } from '../../utils/convert-real-to-number';
+import { trackAddToCart } from '../../utils/analytics';
 
 interface AddToCartModalProps {
   isOpen: boolean;
@@ -25,24 +26,44 @@ const AddToCartModal: React.FC<AddToCartModalProps> = ({ isOpen, onClose, game }
   if (!isOpen || !mounted) return null;
 
   const handleAddPrimary = () => {
+    const price = convertRealToNumber(game.primaryValue.toString());
+    
     addToCart({
       id: game.id,
       game: game.game,
       imageLink: game.imageLink,
-      price: convertRealToNumber(game.primaryValue.toString()),
+      price: price,
       type: 'primary'
+    });
+    
+    trackAddToCart({
+      id: game.id,
+      name: game.game,
+      category: game.category || undefined,
+      price: price,
+      accountType: 'Primária',
     });
     
     onClose();
   };
 
   const handleAddSecondary = () => {
+    const price = convertRealToNumber(game.secondaryValue.toString());
+    
     addToCart({
       id: game.id,
       game: game.game,
       imageLink: game.imageLink,
-      price: convertRealToNumber(game.secondaryValue.toString()),
+      price: price,
       type: 'secondary'
+    });
+    
+    trackAddToCart({
+      id: game.id,
+      name: game.game,
+      category: game.category || undefined,
+      price: price,
+      accountType: 'Secundária',
     });
     
     onClose();

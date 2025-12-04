@@ -8,6 +8,7 @@ import AddToCartModal from './cart/AddToCartModal';
 import { CompactCountdown } from './CompactCountdown';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useAuth } from '../contexts/AuthContext';
+import { trackGameClick } from '../utils/analytics';
 
 interface AddToCartButtonProps {
   game: Game;
@@ -54,6 +55,11 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
   };
 
   const handleCardClick = () => {
+    trackGameClick({
+      id: game.id,
+      name: game.game,
+      category: game.category || undefined,
+    });
     navigate(`/game?id=${game.id}`);
   };
 

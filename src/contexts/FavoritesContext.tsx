@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import type { ReactNode } from 'react';
 import { toggleFavorite as apiToggleFavorite, listFavorites, type FavoriteGame } from '../api/favorites';
 import { useAuth } from './AuthContext';
+import { trackFavoriteToggle } from '../utils/analytics';
 
 interface FavoritesContextType {
   favorites: FavoriteGame[];
@@ -57,6 +58,10 @@ export const FavoritesProvider: React.FC<{ children: ReactNode }> = ({ children 
     try {
       const result = await apiToggleFavorite(gameId, token);
       
+      // Find game name from current favorites if removing, or use gameId if adding
+      const existingFav = favorites.find(fav => fav.gameId === gameId);
+      const gameName = existingFav?.game?.game || gameId;
+      
       // Update local state immediately
       if (result.isFavorited) {
         setFavoriteGameIds(prev => new Set([...prev, gameId]));
@@ -68,13 +73,20 @@ export const FavoritesProvider: React.FC<{ children: ReactNode }> = ({ children 
         });
       }
       
+      // Track analytics
+      trackFavoriteToggle({
+        id: gameId,
+        name: gameName,
+        added: result.isFavorited,
+      });
+      
       // Refresh the full list to get game details
       await refreshFavorites();
     } catch (error: any) {
       console.error('Error toggling favorite:', error);
       throw error;
     }
-  }, [refreshFavorites]);
+  }, [refreshFavorites, favorites]);
 
   const isFavorited = useCallback((gameId: string) => {
     return favoriteGameIds.has(gameId);

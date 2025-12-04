@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import axios from 'axios';
+import { trackLogin } from '../utils/analytics';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -85,6 +86,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Load user data from /me endpoint
       await loadUser();
+      
+      // Track login event
+      trackLogin('email');
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || 'Erro ao fazer login';
       throw new Error(errorMessage);

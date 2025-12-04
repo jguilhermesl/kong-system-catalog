@@ -10,6 +10,7 @@ import RelatedGames from '../components/RelatedGames';
 import AddToCartModal from '../components/cart/AddToCartModal';
 import { convertRealToNumber } from '../utils/convert-real-to-number';
 import { calculateSavings } from '../utils/calculate-savings';
+import { trackGameView } from '../utils/analytics';
 
 // Large Countdown Component for Details Page
 const LargeCountdown: React.FC = () => {
@@ -92,6 +93,22 @@ const GameDetailsPage: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [gameId]);
+
+  // Track game view
+  useEffect(() => {
+    if (game) {
+      const secondaryValueNumber = game.secondaryValue 
+        ? convertRealToNumber(game.secondaryValue.toString()) 
+        : 0;
+      
+      trackGameView({
+        id: game.id,
+        name: game.game,
+        category: game.category || undefined,
+        price: secondaryValueNumber,
+      });
+    }
+  }, [game]);
 
   const formatCurrency = (value: number | null) => {
     if (value === null) return 'R$ 0,00';
