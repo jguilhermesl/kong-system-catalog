@@ -11,6 +11,8 @@ import SortOptions, { type SortOption } from '../components/SortOptions';
 import { fetchGames } from '../api/games';
 import { sortGames } from '../utils/sort-games';
 import type { FetchGamesProps } from '../api/games';
+import { trackSearch } from '../utils/analytics';
+import { useDebounce } from '../hooks/useDebounce';
 
 const AllGamesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,6 +20,7 @@ const AllGamesPage: React.FC = () => {
   const type = searchParams.get('type') || 'all';
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
+  const debouncedSearchValue = useDebounce(searchValue, 500);
 
   const { data: gamesData, isPending } = useQuery({
     queryFn: () =>
@@ -59,14 +62,22 @@ const AllGamesPage: React.FC = () => {
 
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
+  };
+
+  // Track search when debounced value changes
+  React.useEffect(() => {
+    if (debouncedSearchValue.trim()) {
+      trackSearch(debouncedSearchValue.trim());
+    }
+    
     const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set('search', value);
+    if (debouncedSearchValue) {
+      params.set('search', debouncedSearchValue);
     } else {
       params.delete('search');
     }
     setSearchParams(params);
-  };
+  }, [debouncedSearchValue]);
 
   return (
     <>

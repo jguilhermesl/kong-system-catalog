@@ -23,6 +23,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { sortGames } from '../utils/sort-games';
 import type { Game } from '../models/Game';
 import CountdownTimer from '../components/CountdownTimer';
+import { trackSearch } from '../utils/analytics';
 
 // Games Section with Carousel
 interface GamesSectionProps {
@@ -116,6 +117,11 @@ const GamesPage: React.FC = () => {
   useEffect(() => {
     if (debouncedSearchTerm !== searchParams.get('search')) {
       formik.submitForm();
+      
+      // Track search event if there's a search term
+      if (debouncedSearchTerm.trim()) {
+        trackSearch(debouncedSearchTerm.trim());
+      }
     }
   }, [debouncedSearchTerm]);
 
