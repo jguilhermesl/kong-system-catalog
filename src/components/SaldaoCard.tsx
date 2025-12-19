@@ -31,7 +31,7 @@ const SaldaoCard: React.FC<SaldaoCardProps> = ({ game }) => {
     <div className={`flex flex-col h-full rounded-lg overflow-hidden transition-transform duration-200 group cursor-pointer ${
       isSoldOut 
         ? 'bg-zinc-950 hover:ring-2 hover:ring-gray-600' 
-        : 'bg-zinc-900 hover:ring-2 hover:ring-orange-500'
+        : 'bg-zinc-900 hover:ring-2 hover:ring-red-600'
     }`}>
       <div className="relative">
         <img
@@ -50,8 +50,8 @@ const SaldaoCard: React.FC<SaldaoCardProps> = ({ game }) => {
             </span>
           ) : (
             <>
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">
-                🔥 SALDÃO
+              <span className="bg-gradient-to-r from-red-600 to-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">
+                🎄 NATAL
               </span>
               {game.quantidade && (
                 <span className="bg-zinc-900/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">
@@ -64,7 +64,7 @@ const SaldaoCard: React.FC<SaldaoCardProps> = ({ game }) => {
       </div>
       <div className="w-full p-2 lg:p-3 flex-grow">
         {game.tipo && (
-          <span className="inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs lg:text-sm font-bold px-3 py-1.5 rounded-md mb-2 shadow-md">
+          <span className="inline-block bg-gradient-to-r from-red-600 to-red-700 text-white text-xs lg:text-sm font-bold px-3 py-1.5 rounded-md mb-2 shadow-md">
             {game.tipo}
           </span>
         )}
@@ -86,7 +86,7 @@ const SaldaoCard: React.FC<SaldaoCardProps> = ({ game }) => {
           )}
           
           {/* Price display or Sold Out message */}
-          <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-2 lg:p-3 border border-orange-500/30 shadow-sm shadow-orange-500/10">
+          <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-2 lg:p-3 border border-red-600/30 shadow-sm shadow-red-600/10">
             <div className="text-center">
               {isSoldOut ? (
                 /* Sold out message */
@@ -107,13 +107,13 @@ const SaldaoCard: React.FC<SaldaoCardProps> = ({ game }) => {
                   )}
                   {/* Preço de Saldão em destaque */}
                   <div className="mb-1">
-                    <span className="text-orange-500 text-[9px] lg:text-[10px]">R$</span>
+                    <span className="text-red-500 text-[9px] lg:text-[10px]">R$</span>
                     <span className="text-white text-[18px] lg:text-[22px] font-extrabold ml-0.5">
                       {game.valor ? parseFloat(game.valor.replace(',', '.')).toFixed(2).replace('.', ',') : '0,00'}
                     </span>
                   </div>
-                  <div className="text-orange-400 text-[9px] lg:text-[10px] font-bold">
-                    PREÇO SALDÃO
+                  <div className="text-red-400 text-[9px] lg:text-[10px] font-bold">
+                    🎁 OFERTA DE NATAL
                   </div>
                 </>
               )}
@@ -123,7 +123,7 @@ const SaldaoCard: React.FC<SaldaoCardProps> = ({ game }) => {
           {/* Badge de quantidade */}
           {!isSoldOut && game.quantidade && (
             <div className="flex items-center justify-center mt-2">
-              <span className="bg-orange-500/20 text-orange-400 text-[8px] lg:text-[9px] font-bold px-2 py-0.5 lg:py-1 rounded-full">
+              <span className="bg-red-600/20 text-red-400 text-[8px] lg:text-[9px] font-bold px-2 py-0.5 lg:py-1 rounded-full">
                 Apenas {game.quantidade} disponíveis
               </span>
             </div>
@@ -161,12 +161,12 @@ const SaldaoCard: React.FC<SaldaoCardProps> = ({ game }) => {
             disabled={isAdding}
             className={`text-[10px] lg:text-[12px] py-2 px-2 rounded flex items-center justify-center gap-1 w-full mt-2 transition-colors ${
               isAdding 
-                ? 'bg-green-500 cursor-not-allowed text-white' 
-                : 'bg-orange-500 hover:bg-orange-600 text-white'
+                ? 'bg-green-600 cursor-not-allowed text-white' 
+                : 'bg-red-600 hover:bg-red-700 text-white'
             }`}
           >
             <ShoppingCart size={12} />
-            {isAdding ? 'Adicionado!' : 'Adicionar ao Carrinho'}
+            {isAdding ? 'Adicionado! 🎄' : 'Adicionar ao Carrinho'}
           </button>
         )}
       </div>
