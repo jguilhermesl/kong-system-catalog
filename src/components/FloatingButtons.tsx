@@ -3,11 +3,13 @@ import { MessageCircle } from 'lucide-react';
 import { FaInstagram } from 'react-icons/fa';
 
 const FloatingButtons: React.FC = () => {
-  const whatsappNumber = '5581997893024'; // Substitua pelo número correto
+  const whatsappNumber = '5581993040761'; // Substitua pelo número correto
   const instagramUsername = 'konggamesoficial'; // Substitua pelo username correto
-  
+
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent('Olá! Gostaria de saber mais sobre os jogos disponíveis.');
+    const message = encodeURIComponent(
+      'Olá! Gostaria de saber mais sobre os jogos disponíveis.'
+    );
     window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
   };
 
@@ -24,12 +26,12 @@ const FloatingButtons: React.FC = () => {
         aria-label="Contato via WhatsApp"
       >
         <MessageCircle className="h-6 w-6" />
-        
+
         {/* Tooltip */}
         <span className="absolute right-full mr-3 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           Fale conosco no WhatsApp
         </span>
-        
+
         {/* Pulse animation */}
         <span className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75"></span>
       </button>
@@ -41,7 +43,7 @@ const FloatingButtons: React.FC = () => {
         aria-label="Siga-nos no Instagram"
       >
         <FaInstagram className="h-6 w-6" />
-        
+
         {/* Tooltip */}
         <span className="absolute right-full mr-3 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           Siga-nos no Instagram
