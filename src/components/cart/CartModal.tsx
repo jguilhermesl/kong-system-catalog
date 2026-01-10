@@ -9,7 +9,17 @@ interface CartModalProps {
 }
 
 const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
-  const { items, removeFromCart, clearCart, totalPrice, appliedCoupon, discount, finalPrice, applyCoupon, removeCoupon } = useCart();
+  const {
+    items,
+    removeFromCart,
+    clearCart,
+    totalPrice,
+    appliedCoupon,
+    discount,
+    finalPrice,
+    applyCoupon,
+    removeCoupon,
+  } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
@@ -26,7 +36,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
     setCouponError('');
 
     const result = await applyCoupon(couponCode.trim().toUpperCase());
-    
+
     if (result.success) {
       setCouponCode('');
     } else {
@@ -44,28 +54,37 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
 
   const handleCheckout = () => {
     // Format the message for WhatsApp
-    const phoneNumber = '+5581997893024';
+    const phoneNumber = '+5581993040761';
     const message = items
       .map(
         (item) =>
-          `${item.game} (${item.type === 'primary' ? 'Primária' : 'Secundária'}) - ${formatPrice(item.price)}`
+          `${item.game} (${
+            item.type === 'primary' ? 'Primária' : 'Secundária'
+          }) - ${formatPrice(item.price)}`
       )
       .join('\n');
-    
+
     let totalMessage = `\n\nSubtotal: ${formatPrice(totalPrice)}`;
-    
+
     if (appliedCoupon) {
-      totalMessage += `\nCupom (${appliedCoupon.code}): -${formatPrice(discount)}`;
+      totalMessage += `\nCupom (${appliedCoupon.code}): -${formatPrice(
+        discount
+      )}`;
       totalMessage += `\n\nTotal: ${formatPrice(finalPrice)}`;
     } else {
       totalMessage += `\n\nTotal: ${formatPrice(totalPrice)}`;
     }
-    
-    const encodedMessage = encodeURIComponent(`Olá, gostaria de comprar os seguintes jogos:\n${message}${totalMessage}`);
-    
+
+    const encodedMessage = encodeURIComponent(
+      `Olá, gostaria de comprar os seguintes jogos:\n${message}${totalMessage}`
+    );
+
     // Open WhatsApp with the prepared message
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
-    
+    window.open(
+      `https://wa.me/${phoneNumber}?text=${encodedMessage}`,
+      '_blank'
+    );
+
     // Close the modal and clear the cart
     onClose();
     clearCart();
@@ -90,7 +109,9 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
 
         <div className="overflow-y-auto flex-grow p-4">
           {items.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">Seu carrinho está vazio</p>
+            <p className="text-center text-gray-500 py-8">
+              Seu carrinho está vazio
+            </p>
           ) : (
             <ul className="space-y-4">
               {items.map((item) => (
@@ -104,11 +125,15 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                     className="w-16 h-16 object-cover rounded"
                   />
                   <div className="flex-grow">
-                    <h3 className="font-medium text-sm text-gray-900">{item.game}</h3>
+                    <h3 className="font-medium text-sm text-gray-900">
+                      {item.game}
+                    </h3>
                     <p className="text-xs text-gray-600">
                       {item.type === 'primary' ? 'Primária' : 'Secundária'}
                     </p>
-                    <p className="font-bold text-primary">{formatPrice(item.price)}</p>
+                    <p className="font-bold text-primary">
+                      {formatPrice(item.price)}
+                    </p>
                   </div>
                   <button
                     onClick={() => removeFromCart(item.id, item.type)}
@@ -137,7 +162,9 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                     <input
                       type="text"
                       value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setCouponCode(e.target.value.toUpperCase())
+                      }
                       placeholder="Digite o código"
                       className="flex-1 px-3 py-2 border border-gray-300 text-black rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                       disabled={isApplyingCoupon}
@@ -163,8 +190,8 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                         Cupom {appliedCoupon.code} aplicado
                       </p>
                       <p className="text-xs text-green-600">
-                        {appliedCoupon.type === 'PERCENTAGE' 
-                          ? `${appliedCoupon.value}% de desconto` 
+                        {appliedCoupon.type === 'PERCENTAGE'
+                          ? `${appliedCoupon.value}% de desconto`
                           : `${formatPrice(appliedCoupon.value)} de desconto`}
                       </p>
                     </div>
@@ -185,14 +212,16 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                 <span className="text-gray-600">Subtotal:</span>
                 <span className="text-gray-900">{formatPrice(totalPrice)}</span>
               </div>
-              
+
               {appliedCoupon && (
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-green-600">Desconto:</span>
-                  <span className="text-green-600">-{formatPrice(discount)}</span>
+                  <span className="text-green-600">
+                    -{formatPrice(discount)}
+                  </span>
                 </div>
               )}
-              
+
               <div className="flex justify-between items-center pt-2 border-t">
                 <span className="font-bold text-gray-900">Total:</span>
                 <span className="font-bold text-lg text-primary">
