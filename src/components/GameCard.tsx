@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Game } from '../models/Game';
 import { ShoppingCart, Heart } from 'lucide-react';
-import { calculateSavings } from '../utils/calculate-savings';
+import {
+  calculateSavings,
+  calculateSavingsInReais,
+} from '../utils/calculate-savings';
 import { convertRealToNumber } from '../utils/convert-real-to-number';
 import AddToCartModal from './cart/AddToCartModal';
 import { CompactCountdown } from './CompactCountdown';
@@ -27,7 +30,11 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ game }) => {
         Adicionar ao Carrinho
       </button>
 
-      <AddToCartModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} game={game} />
+      <AddToCartModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        game={game}
+      />
     </>
   );
 };
@@ -42,10 +49,16 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
   const { toggleFavorite, isFavorited } = useFavorites();
   const { isAuthenticated } = useAuth();
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
-  const primaryValueNumber = game.primaryValue ? convertRealToNumber(game.primaryValue.toString()) : 0;
-  const secondaryValueNumber = game.secondaryValue ? convertRealToNumber(game.secondaryValue.toString()): 0;
-  const originalPriceNumber = game.originalPrice ? convertRealToNumber(game.originalPrice.toString()) : null;
-  
+  const primaryValueNumber = game.primaryValue
+    ? convertRealToNumber(game.primaryValue.toString())
+    : 0;
+  const secondaryValueNumber = game.secondaryValue
+    ? convertRealToNumber(game.secondaryValue.toString())
+    : 0;
+  const originalPriceNumber = game.originalPrice
+    ? convertRealToNumber(game.originalPrice.toString())
+    : null;
+
   const formatCurrency = (value: number | null) => {
     if (value === null) return 'R$ 0,00';
     return value.toLocaleString('pt-BR', {
@@ -65,7 +78,7 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!isAuthenticated) {
       onAuthRequired?.();
       return;
@@ -82,10 +95,16 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
   };
 
   // Determinar badges baseado nos dados do jogo
-  const hasPromo = game.inPromo && originalPriceNumber && secondaryValueNumber && originalPriceNumber > secondaryValueNumber;
-  const savingsPercentage = hasPromo ? calculateSavings(originalPriceNumber, secondaryValueNumber) : null;
+  const hasPromo =
+    game.inPromo &&
+    originalPriceNumber &&
+    secondaryValueNumber &&
+    originalPriceNumber > secondaryValueNumber;
+  const savingsPercentage = hasPromo
+    ? calculateSavings(originalPriceNumber, secondaryValueNumber)
+    : null;
   const isHighDiscount = game.unmissable;
-  
+
   return (
     <div className="flex flex-col h-full bg-zinc-900 rounded-lg overflow-hidden transition-transform duration-200 group hover:ring-2 hover:ring-primary cursor-pointer">
       <div className="relative" onClick={handleCardClick}>
@@ -100,7 +119,11 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
           onClick={handleFavoriteClick}
           disabled={isFavoriteLoading}
           className="absolute top-2 right-2 z-10 bg-zinc-900/80 backdrop-blur-sm p-2 rounded-full hover:bg-zinc-800 transition-colors disabled:opacity-50"
-          aria-label={isFavorited(game.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          aria-label={
+            isFavorited(game.id)
+              ? 'Remover dos favoritos'
+              : 'Adicionar aos favoritos'
+          }
         >
           <Heart
             size={16}
@@ -137,18 +160,22 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
         <p className="font-bold text-primary text-[12px] lg:text-[14px]">
           {game.gameVersion}
         </p>
-        <h3 className="text-[11px] lg:text-xs font-semibold text-white mb-1.5 lg:mb-2 line-clamp-2 min-h-[2.5em]">{game.game}</h3>
-        
+        <h3 className="text-[11px] lg:text-xs font-semibold text-white mb-1.5 lg:mb-2 line-clamp-2 min-h-[2.5em]">
+          {game.game}
+        </h3>
+
         <div className="mb-2 lg:mb-3 mt-1">
           {/* Countdown para promoções */}
-            <div className="mb-1.5 lg:mb-2">
-              <CompactCountdown />
-            </div>
-          
+          <div className="mb-1.5 lg:mb-2">
+            <CompactCountdown />
+          </div>
+
           <div className="grid grid-cols-2 gap-1.5 lg:gap-2">
             {/* Conta Primária */}
             <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-1.5 lg:p-2 border border-primary/30 shadow-sm shadow-primary/10">
-              <p className="text-[9px] text-gray-400 mb-0.5 lg:mb-1 text-center">Primária</p>
+              <p className="text-[9px] text-gray-400 mb-0.5 lg:mb-1 text-center">
+                Primária
+              </p>
               <div className="text-center">
                 {/* Informação de promoção */}
                 {originalPriceNumber && (
@@ -161,21 +188,28 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
                 )}
                 {/* Preço à vista em destaque */}
                 <div className="mb-0.5 lg:mb-1">
-                  <span className="text-primary text-[9px] lg:text-[10px]">R$</span>
+                  <span className="text-primary text-[9px] lg:text-[10px]">
+                    R$
+                  </span>
                   <span className="text-white text-[16px] lg:text-[18px] font-extrabold ml-0.5">
                     {primaryValueNumber.toFixed(2).replace('.', ',')}
                   </span>
                 </div>
                 {/* Preço parcelado (valor + 10%) */}
                 <div className="text-gray-300 text-[9px] lg:text-[11px]">
-                  ou 4x de <span className="font-semibold">{formatCurrency((primaryValueNumber * 1.1) / 4)}</span>
+                  ou 4x de{' '}
+                  <span className="font-semibold">
+                    {formatCurrency((primaryValueNumber * 1.1) / 4)}
+                  </span>
                 </div>
               </div>
             </div>
-            
+
             {/* Conta Secundária */}
             <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg p-1.5 lg:p-2 border border-primary/20 shadow-sm">
-              <p className="text-[9px] text-gray-400 mb-0.5 lg:mb-1 text-center">Secundária</p>
+              <p className="text-[9px] text-gray-400 mb-0.5 lg:mb-1 text-center">
+                Secundária
+              </p>
               <div className="text-center">
                 {/* Informação de promoção */}
                 {originalPriceNumber && (
@@ -188,24 +222,36 @@ const GameCard: React.FC<GameCardProps> = ({ game, onAuthRequired }) => {
                 )}
                 {/* Preço à vista em destaque */}
                 <div className="mb-0.5 lg:mb-1">
-                  <span className="text-primary text-[9px] lg:text-[10px]">R$</span>
+                  <span className="text-primary text-[9px] lg:text-[10px]">
+                    R$
+                  </span>
                   <span className="text-white text-[16px] lg:text-[18px] font-extrabold ml-0.5">
                     {secondaryValueNumber.toFixed(2).replace('.', ',')}
                   </span>
                 </div>
                 {/* Preço parcelado (valor + 10%) */}
                 <div className="text-gray-300 text-[9px] lg:text-[11px]">
-                  ou 4x de <span className="font-semibold">{formatCurrency((secondaryValueNumber * 1.1) / 4)}</span>
+                  ou 4x de{' '}
+                  <span className="font-semibold">
+                    {formatCurrency((secondaryValueNumber * 1.1) / 4)}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-          
+
           {/* Badge de economia - mantém altura fixa */}
           <div className="flex items-center justify-center mt-1.5 lg:mt-2">
-              <span className="bg-green-500/20 text-green-400 text-[8px] lg:text-[9px] font-bold px-2 py-0.5 lg:py-1 rounded-full">
-                Economize {originalPriceNumber && secondaryValueNumber ? calculateSavings(originalPriceNumber, secondaryValueNumber) : "20%"}
-              </span>
+            <span className="bg-green-500/20 text-green-400 text-[8px] lg:text-[9px] font-bold px-2 py-0.5 lg:py-1 rounded-full">
+              💰 Economize até{' '}
+              {originalPriceNumber && primaryValueNumber
+                ? calculateSavingsInReais(
+                    originalPriceNumber * 0.8,
+                    primaryValueNumber,
+                  )
+                : 'R$ 0,00'}{' '}
+              neste jogo!
+            </span>
           </div>
         </div>
         <div className="mt-1.5 lg:mt-2" onClick={(e) => e.stopPropagation()}>

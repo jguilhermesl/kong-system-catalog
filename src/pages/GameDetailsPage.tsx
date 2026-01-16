@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ShoppingCart, Clock, Star, Shield, Gamepad2, Package } from 'lucide-react';
+import {
+  ArrowLeft,
+  ShoppingCart,
+  Clock,
+  Star,
+  Shield,
+  Gamepad2,
+  Package,
+} from 'lucide-react';
 import { fetchGameById } from '../api/games';
 import { Spinner } from '../components/ui/spinner';
 import Header from '../components/Header';
@@ -9,7 +17,10 @@ import Footer from '../components/Footer';
 import RelatedGames from '../components/RelatedGames';
 import AddToCartModal from '../components/cart/AddToCartModal';
 import { convertRealToNumber } from '../utils/convert-real-to-number';
-import { calculateSavings } from '../utils/calculate-savings';
+import {
+  calculateSavings,
+  calculateSavingsInReais,
+} from '../utils/calculate-savings';
 import { trackGameView } from '../utils/analytics';
 
 // Large Countdown Component for Details Page
@@ -31,7 +42,9 @@ const LargeCountdown: React.FC = () => {
 
       if (difference > 0) {
         const hours = Math.floor(difference / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const minutes = Math.floor(
+          (difference % (1000 * 60 * 60)) / (1000 * 60),
+        );
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
         setTimeLeft({ hours, minutes, seconds });
@@ -55,17 +68,23 @@ const LargeCountdown: React.FC = () => {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-center bg-white/10 rounded-lg px-3 py-2 min-w-[60px]">
-            <span className="text-white text-2xl font-bold">{formatTime(timeLeft.hours)}</span>
+            <span className="text-white text-2xl font-bold">
+              {formatTime(timeLeft.hours)}
+            </span>
             <span className="text-white/80 text-xs font-semibold">HORAS</span>
           </div>
           <span className="text-white text-2xl font-bold">:</span>
           <div className="flex flex-col items-center bg-white/10 rounded-lg px-3 py-2 min-w-[60px]">
-            <span className="text-white text-2xl font-bold">{formatTime(timeLeft.minutes)}</span>
+            <span className="text-white text-2xl font-bold">
+              {formatTime(timeLeft.minutes)}
+            </span>
             <span className="text-white/80 text-xs font-semibold">MIN</span>
           </div>
           <span className="text-white text-2xl font-bold">:</span>
           <div className="flex flex-col items-center bg-white/10 rounded-lg px-3 py-2 min-w-[60px]">
-            <span className="text-white text-2xl font-bold">{formatTime(timeLeft.seconds)}</span>
+            <span className="text-white text-2xl font-bold">
+              {formatTime(timeLeft.seconds)}
+            </span>
             <span className="text-white/80 text-xs font-semibold">SEG</span>
           </div>
         </div>
@@ -79,7 +98,9 @@ const GameDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const gameId = searchParams.get('id');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'description' | 'howItWorks'>('description');
+  const [selectedTab, setSelectedTab] = useState<'description' | 'howItWorks'>(
+    'description',
+  );
 
   const { data: gameData, isPending } = useQuery({
     queryFn: () => fetchGameById(gameId!),
@@ -97,10 +118,10 @@ const GameDetailsPage: React.FC = () => {
   // Track game view
   useEffect(() => {
     if (game) {
-      const secondaryValueNumber = game.secondaryValue 
-        ? convertRealToNumber(game.secondaryValue.toString()) 
+      const secondaryValueNumber = game.secondaryValue
+        ? convertRealToNumber(game.secondaryValue.toString())
         : 0;
-      
+
       trackGameView({
         id: game.id,
         name: game.game,
@@ -135,7 +156,9 @@ const GameDetailsPage: React.FC = () => {
       <>
         <Header />
         <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-4">
-          <h1 className="text-2xl font-bold text-white mb-4">Jogo não encontrado</h1>
+          <h1 className="text-2xl font-bold text-white mb-4">
+            Jogo não encontrado
+          </h1>
           <button
             onClick={() => navigate('/')}
             className="text-primary hover:text-primary/80 flex items-center gap-2"
@@ -149,11 +172,23 @@ const GameDetailsPage: React.FC = () => {
     );
   }
 
-  const primaryValueNumber = game.primaryValue ? convertRealToNumber(game.primaryValue.toString()) : 0;
-  const secondaryValueNumber = game.secondaryValue ? convertRealToNumber(game.secondaryValue.toString()) : 0;
-  const originalPriceNumber = game.originalPrice ? convertRealToNumber(game.originalPrice.toString()) : null;
-  const hasPromo = game.inPromo && originalPriceNumber && secondaryValueNumber && originalPriceNumber > secondaryValueNumber;
-  const savingsPercentage = hasPromo ? calculateSavings(originalPriceNumber, secondaryValueNumber) : null;
+  const primaryValueNumber = game.primaryValue
+    ? convertRealToNumber(game.primaryValue.toString())
+    : 0;
+  const secondaryValueNumber = game.secondaryValue
+    ? convertRealToNumber(game.secondaryValue.toString())
+    : 0;
+  const originalPriceNumber = game.originalPrice
+    ? convertRealToNumber(game.originalPrice.toString())
+    : null;
+  const hasPromo =
+    game.inPromo &&
+    originalPriceNumber &&
+    secondaryValueNumber &&
+    originalPriceNumber > secondaryValueNumber;
+  const savingsPercentage = hasPromo
+    ? calculateSavings(originalPriceNumber, secondaryValueNumber)
+    : null;
 
   return (
     <>
@@ -222,7 +257,9 @@ const GameDetailsPage: React.FC = () => {
                         <div className="w-2 h-2 bg-primary rounded-full mt-1.5"></div>
                         <div>
                           <p className="text-xs text-gray-400">Categoria</p>
-                          <p className="text-sm text-white font-semibold">{game.category}</p>
+                          <p className="text-sm text-white font-semibold">
+                            {game.category}
+                          </p>
                         </div>
                       </div>
                     )}
@@ -231,7 +268,9 @@ const GameDetailsPage: React.FC = () => {
                         <div className="w-2 h-2 bg-primary rounded-full mt-1.5"></div>
                         <div>
                           <p className="text-xs text-gray-400">Console</p>
-                          <p className="text-sm text-white font-semibold">{game.console}</p>
+                          <p className="text-sm text-white font-semibold">
+                            {game.console}
+                          </p>
                         </div>
                       </div>
                     )}
@@ -239,7 +278,9 @@ const GameDetailsPage: React.FC = () => {
                       <div className="w-2 h-2 bg-primary rounded-full mt-1.5"></div>
                       <div>
                         <p className="text-xs text-gray-400">Versão</p>
-                        <p className="text-sm text-white font-semibold">{game.gameVersion}</p>
+                        <p className="text-sm text-white font-semibold">
+                          {game.gameVersion}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -293,8 +334,10 @@ const GameDetailsPage: React.FC = () => {
                           Conta Primária
                         </h3>
                       </div>
-                      <p className="text-xs text-gray-400 mb-3">Jogue sem restrições</p>
-                      
+                      <p className="text-xs text-gray-400 mb-3">
+                        Jogue sem restrições
+                      </p>
+
                       {originalPriceNumber && (
                         <div className="mb-2">
                           <span className="text-gray-400 line-through text-xs">
@@ -302,16 +345,19 @@ const GameDetailsPage: React.FC = () => {
                           </span>
                         </div>
                       )}
-                      
+
                       <div className="mb-2">
                         <span className="text-primary text-sm">R$</span>
                         <span className="text-white text-3xl font-bold ml-1">
                           {primaryValueNumber.toFixed(2).replace('.', ',')}
                         </span>
                       </div>
-                      
+
                       <div className="text-gray-300 text-xs">
-                        ou <span className="font-semibold text-white">4x de {formatCurrency((primaryValueNumber * 1.1) / 4)}</span>
+                        ou{' '}
+                        <span className="font-semibold text-white">
+                          4x de {formatCurrency((primaryValueNumber * 1.1) / 4)}
+                        </span>
                       </div>
                     </div>
 
@@ -323,8 +369,10 @@ const GameDetailsPage: React.FC = () => {
                           Conta Secundária
                         </h3>
                       </div>
-                      <p className="text-xs text-gray-400 mb-3">Economia garantida</p>
-                      
+                      <p className="text-xs text-gray-400 mb-3">
+                        Economia garantida
+                      </p>
+
                       {originalPriceNumber && (
                         <div className="mb-2">
                           <span className="text-gray-400 line-through text-xs">
@@ -332,16 +380,20 @@ const GameDetailsPage: React.FC = () => {
                           </span>
                         </div>
                       )}
-                      
+
                       <div className="mb-2">
                         <span className="text-primary text-sm">R$</span>
                         <span className="text-white text-3xl font-bold ml-1">
                           {secondaryValueNumber.toFixed(2).replace('.', ',')}
                         </span>
                       </div>
-                      
+
                       <div className="text-gray-300 text-xs">
-                        ou <span className="font-semibold text-white">4x de {formatCurrency((secondaryValueNumber * 1.1) / 4)}</span>
+                        ou{' '}
+                        <span className="font-semibold text-white">
+                          4x de{' '}
+                          {formatCurrency((secondaryValueNumber * 1.1) / 4)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -356,10 +408,15 @@ const GameDetailsPage: React.FC = () => {
                 </div>
 
                 {/* Savings Badge */}
-                {originalPriceNumber && secondaryValueNumber && (
+                {originalPriceNumber && primaryValueNumber && (
                   <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-center">
                     <p className="text-green-400 font-bold">
-                      💰 Economize até {calculateSavings(originalPriceNumber, secondaryValueNumber)} neste jogo!
+                      💰 Economize até{' '}
+                      {calculateSavingsInReais(
+                        originalPriceNumber * 0.8,
+                        primaryValueNumber,
+                      )}{' '}
+                      neste jogo!
                     </p>
                   </div>
                 )}
@@ -397,23 +454,27 @@ const GameDetailsPage: React.FC = () => {
             <div className="p-6">
               {selectedTab === 'description' ? (
                 <div className="text-gray-300 space-y-4">
-                  <h3 className="text-xl font-bold text-white mb-4">Sobre o Jogo</h3>
-                  
+                  <h3 className="text-xl font-bold text-white mb-4">
+                    Sobre o Jogo
+                  </h3>
+
                   {game.description && (
                     <div className="bg-zinc-800 rounded-lg p-4 mb-4">
-                      <div 
+                      <div
                         className="leading-relaxed text-gray-300"
                         dangerouslySetInnerHTML={{ __html: game.description }}
                       />
                     </div>
                   )}
-                  
+
                   <p className="leading-relaxed">
-                    Versão: <strong className="text-white">{game.gameVersion}</strong>
+                    Versão:{' '}
+                    <strong className="text-white">{game.gameVersion}</strong>
                   </p>
                   {game.category !== 'N/A' && !!game.category && (
                     <p className="leading-relaxed">
-                      Categoria: <strong className="text-white">{game.category}</strong>
+                      Categoria:{' '}
+                      <strong className="text-white">{game.category}</strong>
                     </p>
                   )}
                   <div className="bg-zinc-800 rounded-lg p-4 mt-6">
@@ -430,22 +491,29 @@ const GameDetailsPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-gray-300 space-y-6">
-                  <h3 className="text-xl font-bold text-white mb-4">Como Funciona a Kong Games</h3>
-                  
+                  <h3 className="text-xl font-bold text-white mb-4">
+                    Como Funciona a Kong Games
+                  </h3>
+
                   <div className="space-y-4">
                     <div className="bg-zinc-800 rounded-lg p-4">
                       <h4 className="font-bold text-white mb-2 flex items-center gap-2">
-                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">1</span>
+                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+                          1
+                        </span>
                         Escolha seu Jogo
                       </h4>
                       <p className="text-sm text-gray-400 ml-8">
-                        Navegue pelo nosso catálogo e escolha o jogo desejado. Temos mais de 2000 jogos disponíveis!
+                        Navegue pelo nosso catálogo e escolha o jogo desejado.
+                        Temos mais de 2000 jogos disponíveis!
                       </p>
                     </div>
 
                     <div className="bg-zinc-800 rounded-lg p-4">
                       <h4 className="font-bold text-white mb-2 flex items-center gap-2">
-                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">2</span>
+                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+                          2
+                        </span>
                         Tipo de Conta
                       </h4>
                       <p className="text-sm text-gray-400 ml-8 mb-3">
@@ -455,13 +523,19 @@ const GameDetailsPage: React.FC = () => {
                         <li className="flex items-start gap-2">
                           <span className="text-primary">•</span>
                           <div>
-                            <strong className="text-white">Primária:</strong> Você recebe uma conta PSN exclusiva com o jogo. Jogue online, ganhe troféus e aproveite todos os recursos sem restrições.
+                            <strong className="text-white">Primária:</strong>{' '}
+                            Você recebe uma conta PSN exclusiva com o jogo.
+                            Jogue online, ganhe troféus e aproveite todos os
+                            recursos sem restrições.
                           </div>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-primary">•</span>
                           <div>
-                            <strong className="text-white">Secundária:</strong> Você compartilha uma conta com o jogo já instalado. Ideal para economia! Jogue offline e aproveite o game por um preço menor.
+                            <strong className="text-white">Secundária:</strong>{' '}
+                            Você compartilha uma conta com o jogo já instalado.
+                            Ideal para economia! Jogue offline e aproveite o
+                            game por um preço menor.
                           </div>
                         </li>
                       </ul>
@@ -469,38 +543,48 @@ const GameDetailsPage: React.FC = () => {
 
                     <div className="bg-zinc-800 rounded-lg p-4">
                       <h4 className="font-bold text-white mb-2 flex items-center gap-2">
-                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">3</span>
+                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+                          3
+                        </span>
                         Finalize a Compra
                       </h4>
                       <p className="text-sm text-gray-400 ml-8">
-                        Adicione ao carrinho e escolha sua forma de pagamento. Aceitamos PIX, cartão de crédito e mais!
+                        Adicione ao carrinho e escolha sua forma de pagamento.
+                        Aceitamos PIX, cartão de crédito e mais!
                       </p>
                     </div>
 
                     <div className="bg-zinc-800 rounded-lg p-4">
                       <h4 className="font-bold text-white mb-2 flex items-center gap-2">
-                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">4</span>
+                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+                          4
+                        </span>
                         Receba Imediatamente
                       </h4>
                       <p className="text-sm text-gray-400 ml-8">
-                        Após a confirmação do pagamento, você recebe os dados de acesso por e-mail e WhatsApp. É rápido e seguro!
+                        Após a confirmação do pagamento, você recebe os dados de
+                        acesso por e-mail e WhatsApp. É rápido e seguro!
                       </p>
                     </div>
 
                     <div className="bg-zinc-800 rounded-lg p-4">
                       <h4 className="font-bold text-white mb-2 flex items-center gap-2">
-                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">5</span>
+                        <span className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+                          5
+                        </span>
                         Suporte Especializado
                       </h4>
                       <p className="text-sm text-gray-400 ml-8">
-                        Conte com nossa equipe para qualquer dúvida. Estamos aqui para ajudar você a jogar!
+                        Conte com nossa equipe para qualquer dúvida. Estamos
+                        aqui para ajudar você a jogar!
                       </p>
                     </div>
                   </div>
 
                   <div className="bg-gradient-to-r from-primary/20 to-orange-500/20 border border-primary/50 rounded-lg p-4 mt-6">
                     <p className="text-center text-white font-semibold">
-                      🎮 Mais de 2000 clientes satisfeitos jogando com a Kong Games!
+                      🎮 Mais de 2000 clientes satisfeitos jogando com a Kong
+                      Games!
                     </p>
                   </div>
                 </div>
