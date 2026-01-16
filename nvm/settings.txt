@@ -1,2 +1,0 @@
-root: C:\Users\Caio\Dev-Club\Projetos_Principais\kong games\kong-system-catalog\nvm
-path: C:\nvm4w\nodejsd\nodejs
