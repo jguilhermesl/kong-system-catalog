@@ -34,7 +34,14 @@ interface GamesSectionProps {
   onAuthRequired?: () => void;
 }
 
-const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isPending, onViewAll, onAuthRequired }) => {
+const GamesSection: React.FC<GamesSectionProps> = ({
+  title,
+  subtitle,
+  games,
+  isPending,
+  onViewAll,
+  onAuthRequired,
+}) => {
   if (games.length === 0 && !isPending) return null;
 
   return (
@@ -44,7 +51,7 @@ const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isP
           {title} {subtitle && <span className="text-primary">{subtitle}</span>}
         </h2>
         {onViewAll && (
-          <button 
+          <button
             onClick={onViewAll}
             className="text-xs text-primary hover:text-primary/80 border border-primary hover:border-primary/80 px-3 py-1 rounded-md transition-colors"
           >
@@ -52,7 +59,7 @@ const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isP
           </button>
         )}
       </div>
-      
+
       {isPending ? (
         <div className="flex items-center justify-center w-full mt-8">
           <Spinner />
@@ -62,15 +69,23 @@ const GamesSection: React.FC<GamesSectionProps> = ({ title, subtitle, games, isP
           {/* Listagem vertical para telas menores que xl */}
           <div className="block xl:hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 md:gap-4">
             {games.map((game) => (
-              <GameCard key={game.id} game={game} onAuthRequired={onAuthRequired} />
+              <GameCard
+                key={game.id}
+                game={game}
+                onAuthRequired={onAuthRequired}
+              />
             ))}
           </div>
-          
+
           {/* Carrossel para telas xl e maiores */}
           <div className="hidden xl:block">
             <Carousel classNameItem="max-w-[300px] my-4">
               {games.map((game) => (
-                <GameCard key={game.id} game={game} onAuthRequired={onAuthRequired} />
+                <GameCard
+                  key={game.id}
+                  game={game}
+                  onAuthRequired={onAuthRequired}
+                />
               ))}
             </Carousel>
           </div>
@@ -87,10 +102,11 @@ const GamesPage: React.FC = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
-  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
+    useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const gamesSectionRef = useRef<HTMLDivElement>(null);
-  
+
   // Initialize formik with URL params
   const formik = useFormik({
     initialValues: {
@@ -116,7 +132,7 @@ const GamesPage: React.FC = () => {
   useEffect(() => {
     if (debouncedSearchTerm !== searchParams.get('search')) {
       formik.submitForm();
-      
+
       // Track search event if there's a search term
       if (debouncedSearchTerm.trim()) {
         trackSearch(debouncedSearchTerm.trim());
@@ -131,7 +147,7 @@ const GamesPage: React.FC = () => {
         category: '',
         price: '',
         console: '',
-      }
+      },
     });
     setSearchParams(new URLSearchParams());
   };
@@ -144,7 +160,13 @@ const GamesPage: React.FC = () => {
         price: searchParams.get('price') as FetchGamesProps['price'],
         console: searchParams.get('console') as FetchGamesProps['console'],
       }),
-    queryKey: ['games', searchParams.get('search'), searchParams.get('category'), searchParams.get('price'), searchParams.get('console')],
+    queryKey: [
+      'games',
+      searchParams.get('search'),
+      searchParams.get('category'),
+      searchParams.get('price'),
+      searchParams.get('console'),
+    ],
   });
 
   const games = gamesData?.data || [];
@@ -152,16 +174,20 @@ const GamesPage: React.FC = () => {
   const unmissableGames = gamesData?.unmissableGames || [];
 
   // Check if any filters are applied
-  const hasFilters = searchParams.get('search') || searchParams.get('category') || searchParams.get('price') || searchParams.get('console');
+  const hasFilters =
+    searchParams.get('search') ||
+    searchParams.get('category') ||
+    searchParams.get('price') ||
+    searchParams.get('console');
 
   // Scroll to games section when filters are applied
   useEffect(() => {
     if (hasFilters && gamesSectionRef.current) {
       // Small delay to ensure content is rendered
       setTimeout(() => {
-        gamesSectionRef.current?.scrollIntoView({ 
+        gamesSectionRef.current?.scrollIntoView({
           behavior: 'smooth',
-          block: 'start'
+          block: 'start',
         });
       }, 100);
     }
@@ -169,7 +195,7 @@ const GamesPage: React.FC = () => {
 
   return (
     <>
-      <Header 
+      <Header
         searchValue={formik.values.search}
         onSearchChange={(value) => formik.setFieldValue('search', value)}
         showSearch={true}
@@ -179,11 +205,15 @@ const GamesPage: React.FC = () => {
       <ImageBanner />
       <CountdownTimer />
       <FloatingButtons />
-      
+
       {/* Quick Filters */}
       <QuickFilters />
-      
-      <section id="games-section" ref={gamesSectionRef} className="pb-16 bg-zinc-950 min-h-screen">
+
+      <section
+        id="games-section"
+        ref={gamesSectionRef}
+        className="pb-16 bg-zinc-950 min-h-screen"
+      >
         <header className="px-4 text-center py-12 bg-gradient-to-b from-zinc-950 to-zinc-950/50">
           <div className="mb-4">
             <span className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-green-500/20 hover:shadow-green-500/30 transition-shadow">
@@ -197,9 +227,8 @@ const GamesPage: React.FC = () => {
             Encontre os melhores jogos com os melhores preços
           </p>
         </header>
-        
-        <div className="container mx-auto px-2 md:px-4">
 
+        <div className="container mx-auto px-2 md:px-4">
           {/* Filter Modal */}
           <FilterModal
             isOpen={isFilterModalOpen}
@@ -218,7 +247,7 @@ const GamesPage: React.FC = () => {
                 </h2>
                 <div className="flex items-center gap-4">
                   <SortOptions value={sortBy} onChange={setSortBy} />
-                  <button 
+                  <button
                     onClick={handleReset}
                     className="text-xs text-red-500 hover:text-red-400 border border-red-500 hover:border-red-400 px-3 py-1 rounded-md transition-colors"
                   >
@@ -226,15 +255,17 @@ const GamesPage: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
+
               {isPending ? (
                 <div className="flex items-center justify-center w-full mt-8">
                   <Spinner />
                 </div>
               ) : games.length === 0 ? (
                 <div className="text-center text-gray-400 py-12">
-                  <p className="text-lg">Nenhum jogo encontrado com os filtros aplicados.</p>
-                  <button 
+                  <p className="text-lg">
+                    Nenhum jogo encontrado com os filtros aplicados.
+                  </p>
+                  <button
                     onClick={handleReset}
                     className="mt-4 text-primary hover:text-primary/80 underline"
                   >
@@ -244,22 +275,17 @@ const GamesPage: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-4">
                   {sortGames(games, sortBy).map((game) => (
-                    <GameCard key={game.id} game={game} onAuthRequired={() => setIsAuthModalOpen(true)} />
+                    <GameCard
+                      key={game.id}
+                      game={game}
+                      onAuthRequired={() => setIsAuthModalOpen(true)}
+                    />
                   ))}
                 </div>
               )}
             </div>
           ) : (
             <>
-              <GamesSection
-                title="JOGOS"
-                subtitle="IMPERDÍVEIS"
-                games={unmissableGames}
-                isPending={isPending}
-                onViewAll={() => navigate('/all-games?type=unmissable')}
-                onAuthRequired={() => setIsAuthModalOpen(true)}
-              />
-              
               <GamesSection
                 title="OFERTAS"
                 subtitle="ESPECIAIS"
@@ -268,15 +294,24 @@ const GamesPage: React.FC = () => {
                 onViewAll={() => navigate('/all-games?type=promo')}
                 onAuthRequired={() => setIsAuthModalOpen(true)}
               />
+
+              <GamesSection
+                title="JOGOS"
+                subtitle="IMPERDÍVEIS"
+                games={unmissableGames}
+                isPending={isPending}
+                onViewAll={() => navigate('/all-games?type=unmissable')}
+                onAuthRequired={() => setIsAuthModalOpen(true)}
+              />
             </>
           )}
         </div>
       </section>
       <Footer />
-      
+
       {/* Auth Modals */}
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
+      <AuthModal
+        isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onSwitchToSignUp={() => {
           setIsAuthModalOpen(false);
@@ -287,7 +322,7 @@ const GamesPage: React.FC = () => {
           setIsForgotPasswordModalOpen(true);
         }}
       />
-      
+
       <SignUpModal
         isOpen={isSignUpModalOpen}
         onClose={() => setIsSignUpModalOpen(false)}
@@ -296,7 +331,7 @@ const GamesPage: React.FC = () => {
           setIsAuthModalOpen(true);
         }}
       />
-      
+
       <ForgotPasswordModal
         isOpen={isForgotPasswordModalOpen}
         onClose={() => setIsForgotPasswordModalOpen(false)}
