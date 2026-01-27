@@ -46,7 +46,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
 
         <div className="w-full p-2 lg:p-3 flex-grow">
           <p className="font-bold text-blue-400 text-[10px] whitespace-nowrap overflow-hidden text-ellipsis mb-0.5">
-            SERVIÇO
+            ESSENTIAL
           </p>
           <p className="font-bold text-primary text-[12px] lg:text-[14px]">
             {title}
