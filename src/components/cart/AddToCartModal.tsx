@@ -48,7 +48,7 @@ const AddToCartModal: React.FC<AddToCartModalProps> = ({
       name: game.game,
       category: game.category || undefined,
       price: price,
-      accountType: isSubscription ? undefined : 'Primária',
+      accountType: isSubscription ? "" : 'Primária',
     });
 
     onClose();

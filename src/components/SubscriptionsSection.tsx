@@ -7,9 +7,7 @@ interface SubscriptionsSectionProps {
   onAuthRequired?: () => void;
 }
 
-const SubscriptionsSection: React.FC<SubscriptionsSectionProps> = ({
-  onAuthRequired,
-}) => {
+const SubscriptionsSection: React.FC<SubscriptionsSectionProps> = () => {
   // Mock dos produtos de assinatura PlayStation Plus
   const subscriptions = [
     {
