@@ -16,6 +16,7 @@ import FilterModal from '../components/FilterModal';
 import AuthModal from '../components/AuthModal';
 import SignUpModal from '../components/SignUpModal';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
+import SubscriptionsSection from '../components/SubscriptionsSection';
 import { fetchGames } from '../api/games';
 import type { FetchGamesProps } from '../api/games';
 import { useDebounce } from '../hooks/useDebounce';
@@ -180,6 +181,23 @@ const GamesPage: React.FC = () => {
     searchParams.get('price') ||
     searchParams.get('console');
 
+  // Check if search term is related to PS Plus/PlayStation Plus
+  const searchTerm = (searchParams.get('search') || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+  const isPSPlusSearch =
+    searchTerm.includes('ps plus') ||
+    searchTerm.includes('psn') ||
+    searchTerm.includes('playstation') ||
+    searchTerm.includes('playstation plus') ||
+    searchTerm.includes('play station plus') ||
+    searchTerm.includes('psplus') ||
+    searchTerm.includes('ps+') ||
+    searchTerm.includes('playstation+') ||
+    (searchTerm.includes('playstation') && searchTerm.includes('plus')) ||
+    (searchTerm.includes('ps') && searchTerm.includes('plus'));
+
   // Scroll to games section when filters are applied
   useEffect(() => {
     if (hasFilters && gamesSectionRef.current) {
@@ -240,50 +258,73 @@ const GamesPage: React.FC = () => {
 
           {/* Games Sections - Show filtered or unfiltered based on filters */}
           {hasFilters ? (
-            <div className="mb-12">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                <h2 className="text-2xl font-bold text-white">
-                  RESULTADOS DA <span className="text-primary">BUSCA</span>
-                </h2>
-                <div className="flex items-center gap-4">
-                  <SortOptions value={sortBy} onChange={setSortBy} />
-                  <button
-                    onClick={handleReset}
-                    className="text-xs text-red-500 hover:text-red-400 border border-red-500 hover:border-red-400 px-3 py-1 rounded-md transition-colors"
-                  >
-                    Limpar filtros
-                  </button>
+            <>
+              <div className="mb-12">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                  <h2 className="text-2xl font-bold text-white">
+                    RESULTADOS DA <span className="text-primary">BUSCA</span>
+                  </h2>
+                  <div className="flex items-center gap-4">
+                    <SortOptions value={sortBy} onChange={setSortBy} />
+                    <button
+                      onClick={handleReset}
+                      className="text-xs text-red-500 hover:text-red-400 border border-red-500 hover:border-red-400 px-3 py-1 rounded-md transition-colors"
+                    >
+                      Limpar filtros
+                    </button>
+                  </div>
                 </div>
+
+                {isPending ? (
+                  <div className="flex items-center justify-center w-full mt-8">
+                    <Spinner />
+                  </div>
+                ) : games.length === 0 && !isPSPlusSearch ? (
+                  <div className="text-center text-gray-400 py-12">
+                    <p className="text-lg">
+                      Nenhum jogo encontrado com os filtros aplicados.
+                    </p>
+                    <button
+                      onClick={handleReset}
+                      className="mt-4 text-primary hover:text-primary/80 underline"
+                    >
+                      Limpar filtros
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {games.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-4">
+                        {sortGames(games, sortBy).map((game) => (
+                          <GameCard
+                            key={game.id}
+                            game={game}
+                            onAuthRequired={() => setIsAuthModalOpen(true)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
 
-              {isPending ? (
-                <div className="flex items-center justify-center w-full mt-8">
-                  <Spinner />
-                </div>
-              ) : games.length === 0 ? (
-                <div className="text-center text-gray-400 py-12">
-                  <p className="text-lg">
-                    Nenhum jogo encontrado com os filtros aplicados.
+              {/* Show PS Plus subscriptions section when searching for PS Plus */}
+              {isPSPlusSearch && (
+                <SubscriptionsSection
+                  onAuthRequired={() => setIsAuthModalOpen(true)}
+                />
+              )}
+
+              {/* Show message if PS Plus search found no games but has subscriptions */}
+              {isPSPlusSearch && games.length === 0 && !isPending && (
+                <div className="text-center text-gray-400 py-8 mb-8">
+                  <p className="text-sm">
+                    Nenhum jogo encontrado, mas confira as assinaturas
+                    PlayStation Plus acima!
                   </p>
-                  <button
-                    onClick={handleReset}
-                    className="mt-4 text-primary hover:text-primary/80 underline"
-                  >
-                    Limpar filtros
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-4">
-                  {sortGames(games, sortBy).map((game) => (
-                    <GameCard
-                      key={game.id}
-                      game={game}
-                      onAuthRequired={() => setIsAuthModalOpen(true)}
-                    />
-                  ))}
                 </div>
               )}
-            </div>
+            </>
           ) : (
             <>
               <GamesSection
@@ -301,6 +342,10 @@ const GamesPage: React.FC = () => {
                 games={unmissableGames}
                 isPending={isPending}
                 onViewAll={() => navigate('/all-games?type=unmissable')}
+                onAuthRequired={() => setIsAuthModalOpen(true)}
+              />
+
+              <SubscriptionsSection
                 onAuthRequired={() => setIsAuthModalOpen(true)}
               />
             </>
